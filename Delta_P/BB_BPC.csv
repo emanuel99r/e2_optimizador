@@ -1,0 +1,12 @@
+﻿PLANTILLA_DP;;;;;
+Tramo;BB_BPC;;;;
+Producto ;Oleoducto;;;;
+Vicosidad (cSt);;;;;
+Densidad (kg/m³);;;;;
+RPM bomba;;;;;
+Pnom motor (hp);;;;;
+Modelo Bomba;;;;;
+Stages ;;;;;
+Diametro (in);;;;;
+N° BPT;N° BPC;Viscosidad;GE (API);Flujo;Intercepto
+0,608183944;2,671349351;-0,003102736;0,10697911;0,002280551;-14,16087002
