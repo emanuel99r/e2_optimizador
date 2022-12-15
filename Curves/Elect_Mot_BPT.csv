@@ -1,0 +1,13 @@
+﻿PLANTILLA_CURVAS;;;
+Equipo;Motor Eléctrico Alta Eficiencia BB;;
+Producto ;Oleoducto;;
+Amperaje (A);66,3;;
+Voltaje (V);6300;;
+RPM bomba;1182,093775;;
+Pnom motor (hp);800;;
+Modelo Bomba;Por Revisar;;
+Factor de Conversión;0,11;;
+Diametro (in);NA;;
+a;b;c;d
+0,910037847;2,175257542;2,023323471;0,021543964
+0,003582007;968,726248;2,029107088;9,77E-01

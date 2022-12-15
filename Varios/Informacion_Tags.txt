@@ -1,0 +1,34 @@
+Relación de Variables a Utilizar y sus respectivos Formatos:
+
+--------------------------------##e2_amorris##-------------------------------------
+Se relacionará de la siguiente forma:
+
+-> # | Formato: $##.###.###,## | NOMBRE VARIABLE PYTHON
+
+-----------------------------------------------------------------------------------
+
+El listado de variables se muestra a continuación:
+
+-> 1 | Formato: $##.###.###,## | Costo_DRA
+-> 2 | Formato: $##.###.###,## | Costo_EE
+-> 3 | Formato: $##.###.###,## | Costo_T
+-> 4 | Formato: ## | NBPCF
+-> 5 | Formato: ##,## % | Info_BPCF["%BEP"][0]*100
+-> 6 | Formato: ##,## % | Info_BPCF_Mot["FactorCarga(%)"][0]*100
+-> 7 | Formato: ##,## % | Info_BPCF["Eff (%)"][0]*100
+-> 8 | Formato: ##.##,## | Consumo_BPCF
+-> 9 | Formato: ## | NBPCV
+-> 10 | Formato: ##,## % | Info_BPCV["%BEP"][0]*100
+-> 11 | Formato: ##,## % | Info_BPCV_Mot["FactorCarga(%)"][0]*100
+-> 12 | Formato: ##,## % | Info_BPCV["Eff (%)"][0]*100
+-> 13 | Formato: ##.##,## | Consumo_BPCV
+-> 14 | Formato: ## | NBB
+-> 15 | Formato: ##,## % | Info_BB["%BEP"][0]*100
+-> 16 | Formato: ##,## % | Info_BB_Mot["FactorCarga(%)"][0]*100
+-> 17 | Formato: ##,## % | Info_BB["Eff (%)"][0]*100
+-> 18 | Formato: ##.##,## | Consumo_BB
+-> 19 | Formato: ## | NBPT
+-> 20 | Formato: ##,## % | Info_BPT_Mot["FactorCarga(%)"][0]*100
+-> 21 | Formato: ##,## % | Info_BPT["Eff (%)"][0]*100 | Se debe corregir. No es eficiencia del intercambiador es eficiencia del equipo
+-> 22 | Formato: ##.##,## | Consumo_BPT
+

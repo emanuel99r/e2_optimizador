@@ -1,0 +1,20 @@
+﻿PLANTILLA_CURVAS;
+Equipo;Variador de frecuencia Hidroviscoso
+Producto ;Oleoducto
+Amperaje (A);163
+Voltaje (V);6000
+RPM bomba;3504
+Pnom motor (hp);2000
+Modelo Variador;Philadelphia
+Stages ;NA
+Diametro (in);NA
+% speed;EFFcentrifugas
+0,325057078;0,193548387
+0,400114155;0,27027027
+0,474885845;0,346420323
+0,549942922;0,425959781
+0,625;0,506666667
+0,700057078;0,588235294
+0,775114155;0,672858617
+0,849885845;0,759046778
+0,924942922;0,849042146

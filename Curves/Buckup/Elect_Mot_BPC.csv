@@ -1,0 +1,13 @@
+﻿PLANTILLA_CURVAS;;;
+Equipo;Motor Eléctrico Alta Eficiencia BPC;;
+Producto ;Oleoducto;;
+Amperaje (A);163;;
+Voltaje (V);6000;;
+RPM bomba;3588;;
+Pnom motor (hp);2000;;
+Modelo Bomba;Por Revisar;;
+Factor de Conversión;1;;
+Diametro (in);NA;;
+a;b;c;d
+0,990782547;1,838898222;1,897820515;0,009912802
+0,023465114;350,2624472;7,136077647;1,01E+00

@@ -1,0 +1,4 @@
+﻿Variable;P_Despacho;Num_BB;BEP;FC_Motor;DRA(ppm);RPM_var;PD_BB
+Máximo;1640;7;1,18;1,11;50;3560;300
+Mínimo;0;0;0,75;0;0;3100;100
+Neutro;0;0;0;0;;0;0
