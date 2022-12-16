@@ -247,17 +247,31 @@ VBP=6550
 #--------------------------------------------------------------------------
 
 app = Dash(__name__)
+app.title = 'Optimizador - Simulador'
 
-# Keep this out of source code repository - save in a file or a database
+
+url='https://docs.google.com/spreadsheets/d/1kVNEr-0nzSIxBKyu2GpY_j4Un5OHjXCC0td1YGoCDFM/export?format=csv'
+df=pd.read_csv(url)
+
+Usuarios=df["Usuario"].tolist()
+Contrasenas=df["Contraseña"].tolist()
+
+VALID_USERNAME_PASSWORD_PAIRS={}
+
+for i,usr in enumerate(Usuarios):
+    VALID_USERNAME_PASSWORD_PAIRS[usr]=Contrasenas[i]
+
+
+"""
 VALID_USERNAME_PASSWORD_PAIRS = {
     'adminE2': 'adminE22022'
 }
+"""
 
 auth = dash_auth.BasicAuth(
     app,
     VALID_USERNAME_PASSWORD_PAIRS
 )
-
 
 fig1=go.Figure()
 fig2=go.Figure()
@@ -337,10 +351,10 @@ fig2.update_layout(
 
 Graficos=html.Div([
 
-    dcc.Graph(id='Grafico1',figure=fig1,className="GraficoHijo"),
-    dcc.Graph(id='Grafico2',figure=fig2,className="GraficoHijo")
+    dcc.Graph(id='Grafico1',figure=fig1,className="GraficoHijo", style={"visibility":"hidden"}),
+    dcc.Graph(id='Grafico2',figure=fig2,className="GraficoHijo") #conflicto con la funcion de abajko de tarjetas
 
-    ],className="GraficoPadre")
+    ],className="GraficoPadre", id="Graficos")
 
 Encabezados = html.Div(
                 [
@@ -352,9 +366,7 @@ Encabezados = html.Div(
                 dcc.Store(id='store-data', data=[], storage_type='memory'),
                 dcc.Store(id='store-data2', data=[], storage_type='memory'),
                 
-                html.Div(html.Img(src="https://www.e2energiaeficiente.com/wp-content/uploads/2018/05/logo-e2-movil.png",className="icono3")),
-                html.Script(type='text/javascript', children='''alert("Hola");'''),
-
+                html.Div(html.Img(src="https://www.e2energiaeficiente.com/wp-content/uploads/2018/05/logo-e2-movil.png",className="icono3"))
                    
                 ],className="Encabezados")
 BPCFija=html.Div(
@@ -705,8 +717,8 @@ Restricciones=html.Div(
                     html.Div([
                         html.Div(dcc.Checklist(
                             
-                            ['BPT 1410', 'BPT 142C', 'BPT 143C', 'BPT 144C', 'BPT 1450', 'BPT 146C'],
-                            ['BPT 1410', 'BPT 142C', 'BPT 143C', 'BPT 144C', 'BPT 1450', 'BPT 146C'],
+                            ['BPT 1410', 'BPT 1420', 'BPT 1430', 'BPT 1440', 'BPT 1450', 'BPT 1460'],
+                            ['BPT 1410', 'BPT 1420', 'BPT 1430', 'BPT 1440', 'BPT 1450', 'BPT 1460'],
              
                             inline=True, id="C-BPT", className="Check"))
                         
@@ -740,7 +752,7 @@ AhorroTotal=html.Div(
             html.Div(id='ahorroT', className="textResul2AhorroT")
             ],className="Result4AhorroT")
             
-        ],className="CostosRTotal")
+        ],className="CostosRTotal", id="ResultAhorroT")
 Resultados=html.Div(
         children=
     [
@@ -766,12 +778,12 @@ Entradas=html.Div(
         ],className="TituloRest4"),
 
         html.Div([
-        html.Div("Flujo [BHP]", className="textInput"),
-        dcc.Input(id='flujo', value=Flujo_BHP, type='number', className="input")
+        html.Div("Flujo [BPH]", className="textInput"),
+        dcc.Input(id='flujo', value=Flujo_BHP, type='text', className="input")
                 ], className="inputsBox"),
 
         html.Div([
-        html.Div("Viscocidad [cSt]", className="textInput"),
+        html.Div("Viscosidad [cSt]", className="textInput"),
         dcc.Input(id='viscocidad', value=Viscocidad_cSt, type='text', className="input")
         ], className="inputsBox"),
 
@@ -801,17 +813,17 @@ Entradas=html.Div(
         ], className="inputsBox"),
         
         html.Div([
-        html.Div("DRA Total [ppm]", className="textInput"),
+        html.Div("DRA Total [PPM]", className="textInput"),
         dcc.Input(id='draTot', value=DRAT, type='text', className="input")
         ], className="inputsBox"),
         
         html.Div([
-        html.Div("Presión Recibo Próxima Estación [psig]", className="textInput"),
+        html.Div("Presión Recibo Próxima Estación [PSIg]", className="textInput"),
         dcc.Input(id='pRec', value=PREC, type='text', className="input")
         ], className="inputsBox"),
         
         html.Div([
-        html.Div("Presión de Despacho [psig]", className="textInput"),
+        html.Div("Presión de Despacho [PSIg]", className="textInput"),
         dcc.Input(id='pDes', value=PRED, type='text', className="input")
         ], className="inputsBox"),
         
@@ -835,7 +847,7 @@ Entradas=html.Div(
         ], className="inputsBox", id="tarifaDRAA"),
         
         html.Div([
-        html.Div("Ps Booster [psig]", className="textInput"),
+        html.Div("Ps Booster [PSIg]", className="textInput"),
         dcc.Input(id='pBooster', value=PSBOOSTER, type='text', className="input")
         ], className="inputsBox", id="pBoosterA"),
         
@@ -868,28 +880,13 @@ Cuerpo = html.Div(
 Creditos = html.Div(
                 [
                 html.Div("Optimizador Energético - E2 Energía Eficiente S.A E.S.P",className="Creditos1"),
-                html.Div("xxxxx@e2energiaeficiente.com  -  xxxxxxx")
+                html.Div("")
                    
                 ],className="Creditos")
 
 app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain")
 
 #        CallBacks
-
-"""
-                     FALTA
-    
-    * Meter botón de actualizar para sincronizar datos con influxDB
-    * Esconder / Aparecer Componentes si se Optimiza o Simula
-    * "        "       "  Entradas
-    * Sincronizar InfluxDB con Entradas
-    * Optimizador*
-    
-    *Los desplegables (aclarar con alfredo*)
-
-"""
-
-Data2={}
 
 #Calculos Principales
 @app.callback(
@@ -996,10 +993,10 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
     flujoIN=flujo
     viscocidadIN=viscocidad
     apiIN=api
-    numUnidadesIN=numUnidades
-    numEqpVarIN=numEqpVar
-    numEqpFijoIN=numEqpFijo
-    numEqpParIN=numEqpPar
+    numUnidadesIN=int(numUnidades)
+    numEqpVarIN=int(numEqpVar)
+    numEqpFijoIN=int(numEqpFijo)
+    numEqpParIN=int(numEqpPar)
     draTotIN=draTot
     pRecIN=pRec
     pDesIN=pDes
@@ -1011,7 +1008,10 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
     Est1={"display":"none"}
     Est2={"display":"flex"}
     
-
+    Data2={}
+    fig1.data=[]
+    fig2.data=[]
+    
     if "btn-Simular" == ctx.triggered_id:
 
         Flujo=float(flujo)
@@ -1333,10 +1333,10 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
 
         ##Establecer Número máximo de equipos
         
-        in_Num_max_BB=numUnidades
-        in_Num_max_BPT=numEqpPar
-        in_Num_max_BPCV=numEqpVar
-        in_Num_max_BPCF=numEqpFijo
+        in_Num_max_BB=Data["Num BB"]
+        in_Num_max_BPT=Data["Num BPT"]
+        in_Num_max_BPCV=Data["Num BPC-V"]
+        in_Num_max_BPCF=Data["Num BPC-F"]
 
 
         if DRA_ppm>0:
@@ -1679,8 +1679,8 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                         'xanchor': 'center',
                         'yanchor': 'top' # new
                         },
-            yaxis_title="PDRA (ppm)",
-            xaxis_title="Rendimiento",
+            xaxis_title="DRA (ppm)",
+            yaxis_title="Rendimiento",
             )
         
         fig2.update_traces(line_color='gold')
@@ -1774,21 +1774,6 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
     elif "btn-Limpiar" == ctx.triggered_id:
         print("Limpiar")
         
-        flujoIN=""
-        viscocidadIN=""
-        apiIN=""
-        numUnidadesIN=""
-        numEqpVarIN=""
-        numEqpFijoIN=""
-        numEqpParIN=""
-        draTotIN=""
-        pRecIN=""
-        pDesIN=""
-        tarifaEleIN=""
-        tarifaDRAIN=""
-        pBoosterIN=""
-        vBPIN=""
-        
         BPCF=""
         BEP=""
         FCMOTOR=""
@@ -1800,6 +1785,7 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         CDRA_O=""
         CE_O=""
         CET_O=""
+        AhorroT=""
         BPCV=""
         BEP2=""
         FCMOTOR2=""
@@ -1816,9 +1802,11 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         EFEQPBPT=""
         CONEQPBPT=""
         
+        Data2={}
+        
         fig1.data=[]
         fig2.data=[]
-
+        
     elif "btn-Actualizar" == ctx.triggered_id:
 
         Input=Inputs('CENITCOVENAS')
@@ -1843,7 +1831,7 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
     
     return [BPCF, BEP, FCMOTOR, CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,AhorroT,BPCV,BEP2,FCMOTOR2,RPM,BB,BEP3,FCMOTOR3,
                   BPT,FCMOTOR4, Simular, fig1, fig2, flujoIN,viscocidadIN,
-                  apiIN, Data["Num BB"], Data["Num BPC-V"], Data["Num BPC-F"], Data["Num BPT"],
+                  apiIN, numUnidadesIN, numEqpVarIN, numEqpFijoIN, numEqpParIN,
                   draTotIN, pRecIN, pDesIN, tarifaEleIN, tarifaDRAIN, pBoosterIN, vBPIN, EstadoID, Est1, Est2, Data2]
 
 #Ocultar Tarjetas
@@ -1852,18 +1840,32 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
     Output('Grafico2','style'),
     Output('CostoBase','style'),
     Output('CostoOptimo','style'),
+    Output('ResultAhorroT','style'),
+    
+    Output('btn-Simular','style'),
+    Output('btn-Optimizar','style'),
+    Output('btn-Limpiar','style'),
+    Output('btn-Detener','style'),
     
     Output('EstadoID2','children'),
    
     Input('btn-Simular','n_clicks'),
-    Input('btn-Optimizar','n_clicks')
+    Input('btn-Optimizar','n_clicks'),
+    Input('btn-Limpiar','n_clicks'),
 )            
-def update_style(Simular, Optimizar):
+def update_style(Simular, Optimizar, Limpiar):
 
     sty1={"visibility":"hidden"}
     sty2={"visibility":"hidden"}
     sty3={"display":"flex"}
     sty4={"display":"flex"}
+    sty5={"display":"block"}
+    
+    sty6={"displlay":"block"}
+    sty7={"display":"hidden"}
+    sty8={"display":"hidden"}
+    sty9={"display":"hidden"}
+
     EstadoID2=""
     
     if ctx.triggered_id=="btn-Simular":
@@ -1872,6 +1874,7 @@ def update_style(Simular, Optimizar):
         sty2={"visibility":"hidden"}
         sty3={"display":"flex"}
         sty4={"display":"none"}
+        sty5={"display":"none"}
         
         #EstadoID2="Simulando..."
         EstadoID2=""
@@ -1882,10 +1885,25 @@ def update_style(Simular, Optimizar):
         sty2={"visibility":"visible"}
         sty3={"display":"flex"}
         sty4={"display":"flex"}
+        sty5={"display":"block"}
         
         #EstadoID="Optimizando..."
+        EstadoID2=""
+    
+    if ctx.triggered_id=="btn-Limpiar":
         
-    return [sty1, sty2, sty3, sty4, EstadoID2]
+        sty1={"visibility":"hidden"}
+        sty2={"visibility":"hidden"}
+        sty3={"display":"flex"}
+        sty4={"display":"flex"}
+        sty5={"display":"hidden"}
+        
+        #Data2={}
+        
+        #EstadoID="Optimizando..."
+        EstadoID2=""
+        
+    return [sty1, sty2, sty3, sty4, sty5, sty6, sty7, sty8, sty9, EstadoID2]
 
 #Variables Avanzadas
 @app.callback(
@@ -2114,4 +2132,4 @@ def update_output(Data2, value, value2, inp):
         return ["",""]
 
 if __name__ == '__main__':
-    app.run_server(debug=True,port="3000")
+    app.run_server()
