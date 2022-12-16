@@ -1,6 +1,3 @@
-
-
-
 setTimeout(function mainFunction(){
 
     try {
@@ -47,7 +44,7 @@ setTimeout(function mainFunction(){
                 api.style.backgroundColor = 'transparent';
             }
 
-            if (pDes.value>1640)
+            if (pDes.value>1640 || pDes.value<=0)
             {
                 pDes.style.backgroundColor = 'rgba(255, 1, 1, 0.344)';
             }

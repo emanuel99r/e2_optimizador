@@ -353,7 +353,7 @@ body {
 
 .textResult1
 {
-    color: #373738;
+    color: #3a3b3b;
     font-size: 12px;
     text-align: center;
     font-weight: bold;
@@ -365,7 +365,7 @@ body {
 
 .textResult1AhorroT
 {
-    color: #4c4d4e;
+    color: #3a3b3b;
     font-size: 12px;
     text-align: right;
     font-weight: bold;
@@ -585,7 +585,7 @@ body {
     font-size: 15px;
     text-align: center;
     font-weight: bold;
-    color: #000000;
+    color: #3a3b3b;
     background-color:#C4C1C1;
     border-bottom:gold 3px solid;
     border-left: none;
@@ -734,7 +734,7 @@ body {
     text-align: center;
     padding-top: 3px;
     margin-bottom: 10px;
-    color: #ffffff;
+    color: black;
     font-weight: bold;
     background-color: #00ff88;
     border-radius: 5px;
@@ -782,7 +782,7 @@ body {
     text-align: center;
     border-radius: 5px;
     width: 316px;
-    height: 370px;
+    height: 300px;
     padding: 5px;
     margin-left: 12px;
 }
