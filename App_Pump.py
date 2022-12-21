@@ -339,13 +339,13 @@ fig2.update_yaxes(
 
 fig2.update_layout(
              title={
-                        'text': "Rendimiento DRA",
+                        'text': "Rendimiento DRA [%]",
                         'y':0.9, # new
                         'x':0.5,
                         'xanchor': 'center',
                         'yanchor': 'top' # new
                         },
-            yaxis_title="Rendimiento",
+            yaxis_title="Rendimiento [%]",
             xaxis_title="DRA (ppm)"
             )
 
@@ -365,6 +365,10 @@ Encabezados = html.Div(
                 
                 dcc.Store(id='store-data', data=[], storage_type='memory'),
                 dcc.Store(id='store-data2', data=[], storage_type='memory'),
+                dcc.ConfirmDialog(
+                    id='confirmTarifas',
+                    message='¿Desea confirmar las siguientes tarifas?',
+    ),
                 
                 html.Div(html.Img(src="https://www.e2energiaeficiente.com/wp-content/uploads/2018/05/logo-e2-movil.png",className="icono3"))
                    
@@ -780,7 +784,7 @@ Entradas=html.Div(
         html.Div([
         html.Div("Flujo [BPH]", className="textInput"),
         dcc.Input(id='flujo', value=Flujo_BHP, type='text', className="input")
-                ], className="inputsBox"),
+                ], className="inputsBox"), 
 
         html.Div([
         html.Div("Viscosidad [cSt]", className="textInput"),
@@ -791,6 +795,8 @@ Entradas=html.Div(
         html.Div("°API", className="textInput"),
         dcc.Input(id='api', value=API, type='text', className="input")
         ], className="inputsBox"),
+        
+        html.Div(html.Button('Estimar', id='btn-Estimar', n_clicks=0, className="btnEstimar"), className="boxEstimar"),
 
         html.Div([
         html.Div("Número de Unidades en Paralelo BB", className="textInput"),
@@ -818,15 +824,15 @@ Entradas=html.Div(
         ], className="inputsBox"),
         
         html.Div([
-        html.Div("Presión Recibo Próxima Estación [PSIg]", className="textInput"),
-        dcc.Input(id='pRec', value=PREC, type='text', className="input")
-        ], className="inputsBox"),
-        
-        html.Div([
         html.Div("Presión de Despacho [PSIg]", className="textInput"),
         dcc.Input(id='pDes', value=PRED, type='text', className="input")
         ], className="inputsBox"),
         
+        html.Div([
+        html.Div("Presión Recibo Próxima Estación [PSIg]", className="textInput"),
+        dcc.Input(id='pRec', value=PREC, type='text', className="input")
+        ], className="inputsBox"),
+    
         html.Div([
             html.Div(dcc.Checklist(id="OpcAvanzadas",className="Check",
                 options=[{
@@ -884,7 +890,7 @@ Creditos = html.Div(
                    
                 ],className="Creditos")
 
-app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain")
+app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain") 
 
 #        CallBacks
 
@@ -934,8 +940,11 @@ app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain")
     Output('EstadoID2','style'),
     
     Output("store-data2", "data"),
+    Output('confirmTarifas', 'displayed'),
     
     Input("store-data", "data"),
+    Input('confirmTarifas', 'submit_n_clicks'),
+    Input('confirmTarifas', 'cancel_n_clicks'),
     
     Input('BPCF', 'children'),
     Input('BEP', 'children'),
@@ -962,6 +971,7 @@ app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain")
     Input('btn-Limpiar', 'n_clicks'),
     Input('btn-Actualizar', 'n_clicks'),
     Input('btn-Detener', 'n_clicks'),
+    Input('btn-Estimar', 'n_clicks'),
     
     Input('flujo', 'value'),
     Input('viscocidad', 'value'),
@@ -979,10 +989,10 @@ app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain")
     Input('vBP', 'value'),
     
 )
-def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,AhorroT,BPCV,BEP2,FCMOTOR2, RPM,
+def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,AhorroT,BPCV,BEP2,FCMOTOR2, RPM,
                   BB,BEP3,FCMOTOR3,BPT,FCMOTOR4,
                   
-                  Simular, Optimizar, Limpiar, Actualizar, Detener,
+                  Simular, Optimizar, Limpiar, Actualizar, Detener, Estimar,
                   
                   flujo,viscocidad, api, numUnidades, numEqpVar, numEqpFijo, numEqpPar,
                   draTot, pRec, pDes, tarifaEle, tarifaDRA, pBooster, vBP
@@ -1012,72 +1022,73 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
     fig1.data=[]
     fig2.data=[]
     
+    Confirm=False
+    
     if "btn-Simular" == ctx.triggered_id:
+                
+            Flujo=float(flujo)
+            Pd=float(pDes)
+            Ps_TK=float(pBooster)
+            Visc=float(viscocidad)
+            API=float(api)
+            NBB=numUnidades
+            NBPCV=numEqpVar
+            NBPCF=numEqpFijo
+            NBPT=numEqpPar
+            DRA_ppm=float(draTot)
+            Tarifa_Elect=float(tarifaEle)
+            Tarifa_DRA=float(tarifaDRA)
+            TRM=trm(date)
+            print("TRM: "+str(TRM))
+            Tarifa_DRA=Tarifa_DRA*TRM
 
-        Flujo=float(flujo)
-        Pd=float(pDes)
-        Ps_TK=float(pBooster)
-        Visc=float(viscocidad)
-        API=float(api)
-        NBB=numUnidades
-        NBPCV=numEqpVar
-        NBPCF=numEqpFijo
-        NBPT=numEqpPar
-        DRA_ppm=float(draTot)
-        Tarifa_Elect=float(tarifaEle)
-        Tarifa_DRA=float(tarifaDRA)
-        TRM=trm(date)
-        print("TRM: "+str(TRM))
-        Tarifa_DRA=Tarifa_DRA*TRM
+            GE=141.5/(131.5+API)
 
-        GE=141.5/(131.5+API)
-        
+            BPC_var_doc=e2.Visc_Change("BPC.csv","BPC_var.csv",Visc,GE)
+            BPC_fija_doc=e2.Visc_Change("BPC.csv","BPC_fija.csv",Visc,GE)
+            BB_corr_doc=e2.Visc_Change("BB.csv","BB_corr.csv",Visc,GE)
 
-        ##Factores de ajuste --- Nominal a Real
+            BPC_var_doc=e2.Impeller_Change(BPC_var_doc,"BPC_var.csv",311.15,op="var")
+            BPC_fija_doc=e2.Impeller_Change(BPC_fija_doc,"BPC_fija.csv",323.85,op="var")
 
-        e2.Visc_Change("BPC.csv","BPC_var.csv",Visc,GE)
-        e2.Visc_Change("BPC.csv","BPC_fija.csv",Visc,GE)
-        e2.Visc_Change("BB.csv","BB_corr.csv",Visc,GE)
+            BPC_fija_doc=e2.Stage_Change(BPC_fija_doc,"BPC_fija.csv",3,op="var")
 
-        e2.Impeller_Change("BPC_var.csv","BPC_var.csv",311.15)
-        e2.Impeller_Change("BPC_fija.csv","BPC_fija.csv",323.85)
+            BPC_fija_doc=e2.RPM_Change(BPC_fija_doc,"BPC_fija.csv",3587,op="var")
 
-        e2.Stage_Change("BPC_fija.csv","BPC_fija.csv",3)
+            Flujo_BB=Flujo/NBB
+            Info_BB=e2.curve_calc(BB_corr_doc,Flujo_BB,op="var")
+            Info_BB_Mot=e2.melec_calc("Elect_Mot_BB.csv",Info_BB["Peje (kW)"][0])
+            Consumo_BB=Info_BB_Mot["PotS (kW)"][0]*NBB
 
-        e2.RPM_Change("BPC_fija.csv","BPC_fija.csv",3587)
+            DP_BPC_BB=e2.Covena_dp_bb("BB_BPC.csv",NBPT,NBPCV+NBPCF,Visc,GE,Flujo)
 
-        Flujo_BB=Flujo/NBB
-        Info_BB=e2.curve_calc("BB_corr.csv",Flujo_BB)
-        Info_BB_Mot=e2.melec_calc("Elect_Mot_BB.csv",Info_BB["Peje (kW)"][0])
-        Consumo_BB=Info_BB_Mot["PotS (kW)"][0]*NBB
+            Ps_BP=Ps_TK+Info_BB["TDH (psi)"]-DP_BPC_BB
 
-        DP_BPC_BB=e2.Covena_dp_bb("BB_BPC.csv",NBPT,NBPCV+NBPCF,Visc,GE,Flujo)
+            if NBPT>0:
+                Info_BPT=e2.bpt_calc("BPT.csv",Visc,GE,Ps_BP,Pd)
+                Eff_Incr=0.98
+                Info_BPT_Mot=e2.melec_calc("Elect_Mot_BPT.csv",Info_BPT["Peje (kW)"][0]/Eff_Incr)
+                Consumo_BPT=Info_BPT_Mot["PotS (kW)"][0]*NBPT
+                Flujo_BPT_T=Info_BPT["Flujo (BPH)"][0]*NBPT
+            else:
+                Eff_Incr=0
+                Consumo_BPT=0
+                Flujo_BPT_T=0
+                Name_columns=['Flujo (BPH)','TDH (psi)','Vel (RPM)','PH (kW)','Eff (%)','Peje (kW)']
+                Info_BPT=[[0,0,0,0,0,0]]
+                Info_BPT=pd.DataFrame(Info_BPT,columns=Name_columns)
+                Name_columns=['FactorCarga (%)','PotEn (kW)','Eff_Mot (%)','PotS (kW)','FP (%)','Corr (A)']
+                Info_BPT_Mot=[[0,0,0,0,0,0]]
+                Info_BPT_Mot=pd.DataFrame(Info_BPT_Mot,columns=Name_columns)
 
-        Ps_BP=Ps_TK+Info_BB["TDH (psi)"]-DP_BPC_BB
-
-        if NBPT>0:
-            Info_BPT=e2.bpt_calc("BPT.csv",Visc,GE,Ps_BP,Pd)
-            Eff_Incr=0.98
-            Info_BPT_Mot=e2.melec_calc("Elect_Mot_BPT.csv",Info_BPT["Peje (kW)"][0]/Eff_Incr)
-            Consumo_BPT=Info_BPT_Mot["PotS (kW)"][0]*NBPT
-            Flujo_BPT_T=Info_BPT["Flujo (BPH)"][0]*NBPT
-        else:
-            Eff_Incr=0
-            Consumo_BPT=0
-            Flujo_BPT_T=0
-            Name_columns=['Flujo (BPH)','TDH (psi)','Vel (RPM)','PH (kW)','Eff (%)','Peje (kW)']
-            Info_BPT=[[0,0,0,0,0,0]]
-            Info_BPT=pd.DataFrame(Info_BPT,columns=Name_columns)
-            Name_columns=['FactorCarga (%)','PotEn (kW)','Eff_Mot (%)','PotS (kW)','FP (%)','Corr (A)']
-            Info_BPT_Mot=[[0,0,0,0,0,0]]
-            Info_BPT_Mot=pd.DataFrame(Info_BPT_Mot,columns=Name_columns)
-
-        if NBPCV>0 or NBPCF>0:
-            Flujo_BPC_T=Flujo-Flujo_BPT_T
-            
+            if NBPCV>0 or NBPCF>0:
+                Flujo_BPC_T=Flujo-Flujo_BPT_T
+            else:
+                Flujo_BPC_T=0
+                
             if NBPCF>0:
                 Flujo_BPC_F=Flujo_BPC_T/NBPCF
-                Info_BPCF=e2.curve_calc("BPC_fija.csv",Flujo_BPC_F)
+                Info_BPCF=e2.curve_calc(BPC_fija_doc,Flujo_BPC_F,op="var")
                 Info_BPCF_Mot=e2.melec_calc("Elect_Mot_BPC.csv",Info_BPCF["Peje (kW)"][0])
                 Consumo_BPCF=Info_BPCF_Mot["PotS (kW)"][0]*NBPCF
                 PD_BPCF=Info_BPCF["TDH (psi)"][0]
@@ -1090,11 +1101,11 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                 Name_columns=['FactorCarga (%)','PotEn (kW)','Eff_Mot (%)','PotS (kW)','FP (%)','Corr (A)']
                 Info_BPCF_Mot=[[0,0,0,0,0,0]]
                 Info_BPCF_Mot=pd.DataFrame(Info_BPCF_Mot,columns=Name_columns)
-            
+
             if NBPCV>0:
                 Flujo_BPC_V=Flujo_BPC_T/NBPCV
                 TDH_BPCV=(Pd-Ps_BP)-PD_BPCF
-                Info_BPCV=e2.rpmvar_predicted("BPC_var.csv",Flujo_BPC_V,TDH_BPCV)
+                Info_BPCV=e2.rpmvar_predicted(BPC_var_doc,Flujo_BPC_V,TDH_BPCV,ops="var")
                 Info_BPCV_Var=e2.varmec_calc("Var_Hidr.csv",float(Info_BPCV["Vel (RPM)"][0]))
                 Info_BPCV_Mot=e2.melec_calc("Elect_Mot_BPC.csv",float(Info_BPCV["Peje (kW)"][0]/Info_BPCV_Var["Eff_Var(%)"][0]))
                 Consumo_BPCV=Info_BPCV_Mot["PotS (kW)"][0]*NBPCV
@@ -1110,173 +1121,181 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                 Info_BPCV_Var=[[0,0,0]]
                 Info_BPCV_Var=pd.DataFrame(Info_BPCV_Var,columns=Name_columns)
 
-        Eff_ConjBB=Info_BB["Eff (%)"][0]*Info_BB_Mot["Eff_Mot (%)"][0]
-        Eff_ConjBPCF=Info_BPCF["Eff (%)"][0]*Info_BPCF_Mot["Eff_Mot (%)"][0]
-        Eff_ConjBPCV=Info_BPCV["Eff (%)"][0]*Info_BPCV_Mot["Eff_Mot (%)"][0]*Info_BPCV_Var["Eff_Var(%)"][0]
-        Eff_ConjBPT=Info_BPT["Eff (%)"][0]*Info_BPT_Mot["Eff_Mot (%)"][0]*Eff_Incr
+            Eff_ConjBB=Info_BB["Eff (%)"][0]*Info_BB_Mot["Eff_Mot (%)"][0]
+            Eff_ConjBPCF=Info_BPCF["Eff (%)"][0]*Info_BPCF_Mot["Eff_Mot (%)"][0]
+            Eff_ConjBPCV=Info_BPCV["Eff (%)"][0]*Info_BPCV_Mot["Eff_Mot (%)"][0]*Info_BPCV_Var["Eff_Var(%)"][0]
+            Eff_ConjBPT=Info_BPT["Eff (%)"][0]*Info_BPT_Mot["Eff_Mot (%)"][0]*Eff_Incr
 
-        Costo_EE=(Consumo_BPT+Consumo_BPCF+Consumo_BPCV+Consumo_BB)*Tarifa_Elect
-        Costo_DRA=(DRA_ppm*Flujo)*42/1e6*Tarifa_DRA
-        Costo_T=Costo_DRA+Costo_EE
+            Costo_EE=(Consumo_BPT+Consumo_BPCF+Consumo_BPCV+Consumo_BB)*Tarifa_Elect
+            Costo_DRA=(DRA_ppm*Flujo)*42/1e6*Tarifa_DRA
+            Costo_T=Costo_DRA+Costo_EE
 
-        #--- GRAFICADORA DE VENTANA OPERATIVA---#
-        Flux,TDH,RPM=e2.Covena_Graph("BPC_fija.csv",NBPCF,"BPC_var.csv",NBPCV,"BPT.csv",NBPT,real_ps=float(Ps_BP))
-       
-        data = {
-        'Flujo':Flujo,
-        'Pd':Pd,
-        'Flux':Flux,
-        'TDH':TDH
-        }
+            print("Consumo BB: ", Consumo_BB)
+            print("Consumo BPT: ",Consumo_BPT)
+            print("Consumo BPCF: ",Consumo_BPCF)
+            print("Consumo BPCV: ",Consumo_BPCV)
+            print("Consumo Total: ",Consumo_BPT+Consumo_BPCF+Consumo_BPCV+Consumo_BB)
+            print("Costo Total: ",Costo_T)
 
-        df = pd.DataFrame(data)
+            #--- GRAFICADORA DE VENTANA OPERATIVA---#
 
-        fig1.data=[]
+            Flux,TDH,RPM=e2.Covena_Graph(BPC_fija_doc,NBPCF,BPC_var_doc,NBPCV,"BPT.csv",NBPT,real_ps=float(Ps_BP),op="var")
 
-        fig1.add_trace(
-            go.Line(x=df['Flux'], y=df['TDH'])
-                    )
+            data = {
+            'Flujo':Flujo,
+            'Pd':Pd,
+            'Flux':Flux,
+            'TDH':TDH
+            }
 
-        fig1.add_trace(
-            go.Scatter(
-                mode="markers",
-                x=df['Flujo'],
-                y=df['Pd'],
-                marker=dict(
-                color='Red',
-                size=10
-                    )))
-   
-        fig1.update_layout(
-             title={
-                        'text': "Ventana Operativa",
-                        'y':0.9, # new
-                        'x':0.5,
-                        'xanchor': 'center',
-                        'yanchor': 'top' # new
-                        },
-            yaxis_title="Presión de Descarga [psi]",
-            xaxis_title="Flujo [BPH]",
-            yaxis_range=[max(min(TDH)-500,0),max(TDH)+500],
-            xaxis_range=[max(min(Flux)-500,0),max(Flux)+500]
-            )
-        
-        fig1.update_traces(line_color='gold')
-        
-        CDRA_B="$ {:,.2f}".format(Costo_DRA)
-        CE_B="$ {:,.2f}".format(Costo_EE)
-        CET_B="$ {:,.2f}".format(Costo_T)
-        
-        global Costo_TB
-        Costo_TB=Costo_T   #Sino lo recibes en un callback aparte y actualizas?... o si lo halñas del sim y lo operas? XD
-        
-        Data3=0
-   
-        BPCF=NBPCF
-        BEP="{:,.2f} %".format(round(Info_BPCF["%BEP"][0]*100,2))
-        FCMOTOR="{:,.2f} %".format(round(Info_BPCF_Mot["FactorCarga (%)"][0]*100,2))
-        #FCMOTOR="Error"
-        EFIEQP="{:,.2f} %".format(round(Info_BPCF["Eff (%)"][0]*100,2))
-        CONEQP="{:,.2f}".format(round(Consumo_BPCF,2))
+            df = pd.DataFrame(data)
 
-        BPCV=NBPCV
-        BEP2="{:,.2f} %".format(round(Info_BPCV["%BEP"][0]*100,2))
-        FCMOTOR2="{:,.2f} %".format(round(Info_BPCV_Mot["FactorCarga (%)"][0]*100,2))
-        RPM="{:,.2f}".format(round(Info_BPCV["Vel (RPM)"][0],2))
-        #FCMOTOR2="Error"
-        EFIEQPVAR="{:,.2f} %".format(round(Info_BPCV["Eff (%)"][0]*100,2))
-        CONEQPVAR="{:,.2f}".format(round(Consumo_BPCV,2))
+            fig1.data=[]
 
-        
-        BB=NBB
-        BEP3="{:,.2f} %".format(round(Info_BB["%BEP"][0]*100,2))
-        FCMOTOR3="{:,.2f} %".format(round(Info_BB_Mot["FactorCarga (%)"][0]*100,2))
-        #FCMOTOR3="Error"
-        EFEQPBB="{:,.2f} %".format(round(Info_BB["Eff (%)"][0]*100,2))
-        CONEQPBB="{:,.2f}".format(round(Consumo_BB,2))
-        
-        BPT=NBPT
-        FCMOTOR4="{:,.2f} %".format(round(Info_BPT_Mot["FactorCarga (%)"][0]*100,2))
-        #FCMOTOR4="Error"
-        EFEQPBPT="{:,.2f} %".format(round(Info_BPT["Eff (%)"][0]*100,2))
-        CONEQPBPT="{:,.2f}".format(round(Consumo_BPT,2))
-        
-        #EstadoID="Simulación Terminada"
-        EstadoID=""
-        Est1={"display":"flex"}
-        Est2={"display":"none"}
-        
-        EFIMOTBPCFIJA="{:,.2f} %".format(round(Info_BPCF_Mot["Eff_Mot (%)"][0]*100,2))
-        EFICONBPCFIJA="{:,.2f} %".format(round(Eff_ConjBPCF,2)*100)
-        CORRIENTEBPCFIJA="{:,.2f}".format(round(Info_BPCF_Mot["Corr (A)"][0],2))
-        
-        EFIMOTBPCVAR="{:,.2f} %".format(round(Info_BPCV_Mot["Eff_Mot (%)"][0]*100,2))
-        EFICONBPCVAR="{:,.2f} %".format(round(Eff_ConjBPCV,2)*100)
-        EFIVARBPCVAR="{:,.2f} %".format(round(Info_BPCV_Var["Eff_Var(%)"][0]*100))
-        CORRIENTEBPCVAR="{:,.2f}".format(round(Info_BPCV_Mot["Corr (A)"][0],2))
-        
-        EFIMOTBB="{:,.2f} %".format(round(Info_BB_Mot["Eff_Mot (%)"][0]*100,2))
-        EFICONBB="{:,.2f} %".format(round(Eff_ConjBB,2)*100)
-        CORRIENTEBB="{:,.2f}".format(round(Info_BB_Mot["Corr (A)"][0],2))
-        
-        EFIMOTBPT="{:,.2f} %".format(round(Info_BPT_Mot["Eff_Mot (%)"][0]*100,2))
-        EFICONBPT="{:,.2f} %".format(round(Eff_ConjBPT,2)*100)
-        CORRIENTEBPT="{:,.2f} %".format(round(Info_BPT_Mot["Corr (A)"][0],2))
-        EFIINCBPT="{:,.2f}".format(round(Eff_Incr*100,2))
-        
-        Data2["EfiEquipo BPC Fija"]=EFIEQP
-        Data2["EfiMotor BPC Fija"]=EFIMOTBPCFIJA                 
-        Data2["EfiVariador BPC Fija"]="NA"          #ND
-        Data2["EfiConjunto BPC Fija"]=EFICONBPCFIJA          
-        Data2["Consumo BPC Fija"]=CONEQP
-        Data2["Corriente BPC Fija"]=CORRIENTEBPCFIJA            
-        
-        Data2["EfiEquipo BPC Variable"]=EFIEQPVAR
-        Data2["EfiMotor BPC Variable"]= EFIMOTBPCVAR             
-        Data2["EfiVariador BPC Variable"]=EFIVARBPCVAR      
-        Data2["EfiConjunto BPC Variable"]=EFICONBPCVAR      
-        Data2["Consumo BPC Variable"]=CONEQPVAR
-        Data2["Corriente BPC Variable"]=CORRIENTEBPCVAR        
-        
-        Data2["EfiEquipo BB"]=EFEQPBB
-        Data2["EfiMotor BB"]= EFIMOTBB                       
-        Data2["EfiVariador BB"]="NA"              
-        Data2["EfiConjunto BB"]=EFICONBB              
-        Data2["Consumo BB"]=CONEQPBB
-        Data2["Corriente BB"]=CORRIENTEBB               
-        
-        Data2["EfiEquipo BPT"]=EFEQPBPT
-        Data2["EfiMotor BPT"]= EFIMOTBPT                      
-        Data2["EfiIncrementador BPT"]=EFIINCBPT         
-        Data2["EfiConjunto BPT"]=EFICONBPT              
-        Data2["Consumo BPT"]=CONEQPBPT
-        Data2["Corriente BPT"]=CORRIENTEBPT                
-        
-        
-        """     MAPA DE VARIABLES
-        -> 1 | Formato: $##.###.###,## | Costo_DRA
-        -> 2 | Formato: $##.###.###,## | Costo_EE
-        -> 3 | Formato: $##.###.###,## | Costo_T
-        -> 4 | Formato: ## | NBPCF
-        -> 5 | Formato: ##,## % | Info_BPCF["%BEP"][0]*100
-        -> 6 | Formato: ##,## % | Info_BPCF_Mot["FactorCarga(%)"][0]*100
-        -> 7 | Formato: ##,## % | Info_BPCF["Eff (%)"][0]*100
-        -> 8 | Formato: ##.##,## | Consumo_BPCF
-        -> 9 | Formato: ## | NBPCV
-        -> 10 | Formato: ##,## % | Info_BPCV["%BEP"][0]*100
-        -> 11 | Formato: ##,## % | Info_BPCV_Mot["FactorCarga(%)"][0]*100
-        -> 12 | Formato: ##,## % | Info_BPCV["Eff (%)"][0]*100
-        -> 13 | Formato: ##.##,## | Consumo_BPCV
-        -> 14 | Formato: ## | NBB
-        -> 15 | Formato: ##,## % | Info_BB["%BEP"][0]*100
-        -> 16 | Formato: ##,## % | Info_BB_Mot["FactorCarga(%)"][0]*100
-        -> 17 | Formato: ##,## % | Info_BB["Eff (%)"][0]*100
-        -> 18 | Formato: ##.##,## | Consumo_BB
-        -> 19 | Formato: ## | NBPT
-        -> 20 | Formato: ##,## % | Info_BPT_Mot["FactorCarga(%)"][0]*100
-        -> 21 | Formato: ##,## % | Info_BPT["Eff (%)"][0]*100 | Se debe corregir. No es eficiencia del intercambiador es eficiencia del equipo
-        -> 22 | Formato: ##.##,## | Consumo_BPT
-        """
+            fig1.add_trace(
+                go.Line(x=df['Flux'], y=df['TDH'])
+                        )
+
+            fig1.add_trace(
+                go.Scatter(
+                    mode="markers",
+                    x=df['Flujo'],
+                    y=df['Pd'],
+                    marker=dict(
+                    color='Red',
+                    size=10
+                        )))
+    
+            fig1.update_layout(
+                title={
+                            'text': "Ventana Operativa",
+                            'y':0.9, # new
+                            'x':0.5,
+                            'xanchor': 'center',
+                            'yanchor': 'top' # new
+                            },
+                yaxis_title="Presión de Descarga [psi]",
+                xaxis_title="Flujo [BPH]",
+                yaxis_range=[max(min(TDH)-500,0),max(TDH)+500],
+                xaxis_range=[max(min(Flux)-500,0),max(Flux)+500]
+                )
+            
+            fig1.update_traces(line_color='gold')
+            
+            CDRA_B="$ {:,.2f}".format(Costo_DRA)
+            CE_B="$ {:,.2f}".format(Costo_EE)
+            CET_B="$ {:,.2f}".format(Costo_T)
+            
+            global Costo_TB
+            Costo_TB=Costo_T   #Sino lo recibes en un callback aparte y actualizas?... o si lo halñas del sim y lo operas? XD
+            
+            Data3=0
+    
+            BPCF=NBPCF
+            BEP="{:,.2f} %".format(round(Info_BPCF["%BEP"][0]*100,2))
+            FCMOTOR="{:,.2f} %".format(round(Info_BPCF_Mot["FactorCarga (%)"][0]*100,2))
+            #FCMOTOR="Error"
+            EFIEQP="{:,.2f} %".format(round(Info_BPCF["Eff (%)"][0]*100,2))
+            CONEQP="{:,.2f}".format(round(Consumo_BPCF,2))
+
+            BPCV=NBPCV
+            BEP2="{:,.2f} %".format(round(Info_BPCV["%BEP"][0]*100,2))
+            FCMOTOR2="{:,.2f} %".format(round(Info_BPCV_Mot["FactorCarga (%)"][0]*100,2))
+            RPM="{:,.2f}".format(round(Info_BPCV["Vel (RPM)"][0],2))
+            #FCMOTOR2="Error"
+            EFIEQPVAR="{:,.2f} %".format(round(Info_BPCV["Eff (%)"][0]*100,2))
+            CONEQPVAR="{:,.2f}".format(round(Consumo_BPCV,2))
+
+            
+            BB=NBB
+            BEP3="{:,.2f} %".format(round(Info_BB["%BEP"][0]*100,2))
+            FCMOTOR3="{:,.2f} %".format(round(Info_BB_Mot["FactorCarga (%)"][0]*100,2))
+            #FCMOTOR3="Error"
+            EFEQPBB="{:,.2f} %".format(round(Info_BB["Eff (%)"][0]*100,2))
+            CONEQPBB="{:,.2f}".format(round(Consumo_BB,2))
+            
+            BPT=NBPT
+            FCMOTOR4="{:,.2f} %".format(round(Info_BPT_Mot["FactorCarga (%)"][0]*100,2))
+            #FCMOTOR4="Error"
+            EFEQPBPT="{:,.2f} %".format(round(Info_BPT["Eff (%)"][0]*100,2))
+            CONEQPBPT="{:,.2f}".format(round(Consumo_BPT,2))
+            
+            #EstadoID="Simulación Terminada"
+            EstadoID=""
+            Est1={"display":"flex"}
+            Est2={"display":"none"}
+            
+            EFIMOTBPCFIJA="{:,.2f} %".format(round(Info_BPCF_Mot["Eff_Mot (%)"][0]*100,2))
+            EFICONBPCFIJA="{:,.2f} %".format(round(Eff_ConjBPCF,2)*100)
+            CORRIENTEBPCFIJA="{:,.2f}".format(round(Info_BPCF_Mot["Corr (A)"][0],2))
+            
+            EFIMOTBPCVAR="{:,.2f} %".format(round(Info_BPCV_Mot["Eff_Mot (%)"][0]*100,2))
+            EFICONBPCVAR="{:,.2f} %".format(round(Eff_ConjBPCV,2)*100)
+            EFIVARBPCVAR="{:,.2f} %".format(round(Info_BPCV_Var["Eff_Var(%)"][0]*100))
+            CORRIENTEBPCVAR="{:,.2f}".format(round(Info_BPCV_Mot["Corr (A)"][0],2))
+            
+            EFIMOTBB="{:,.2f} %".format(round(Info_BB_Mot["Eff_Mot (%)"][0]*100,2))
+            EFICONBB="{:,.2f} %".format(round(Eff_ConjBB,2)*100)
+            CORRIENTEBB="{:,.2f}".format(round(Info_BB_Mot["Corr (A)"][0],2))
+            
+            EFIMOTBPT="{:,.2f} %".format(round(Info_BPT_Mot["Eff_Mot (%)"][0]*100,2))
+            EFICONBPT="{:,.2f} %".format(round(Eff_ConjBPT,2)*100)
+            CORRIENTEBPT="{:,.2f} %".format(round(Info_BPT_Mot["Corr (A)"][0],2))
+            EFIINCBPT="{:,.2f}".format(round(Eff_Incr*100,2))
+            
+            Data2["EfiEquipo BPC Fija"]=EFIEQP
+            Data2["EfiMotor BPC Fija"]=EFIMOTBPCFIJA                 
+            Data2["EfiVariador BPC Fija"]="NA"          #ND
+            Data2["EfiConjunto BPC Fija"]=EFICONBPCFIJA          
+            Data2["Consumo BPC Fija"]=CONEQP
+            Data2["Corriente BPC Fija"]=CORRIENTEBPCFIJA            
+            
+            Data2["EfiEquipo BPC Variable"]=EFIEQPVAR
+            Data2["EfiMotor BPC Variable"]= EFIMOTBPCVAR             
+            Data2["EfiVariador BPC Variable"]=EFIVARBPCVAR      
+            Data2["EfiConjunto BPC Variable"]=EFICONBPCVAR      
+            Data2["Consumo BPC Variable"]=CONEQPVAR
+            Data2["Corriente BPC Variable"]=CORRIENTEBPCVAR        
+            
+            Data2["EfiEquipo BB"]=EFEQPBB
+            Data2["EfiMotor BB"]= EFIMOTBB                       
+            Data2["EfiVariador BB"]="NA"              
+            Data2["EfiConjunto BB"]=EFICONBB              
+            Data2["Consumo BB"]=CONEQPBB
+            Data2["Corriente BB"]=CORRIENTEBB               
+            
+            Data2["EfiEquipo BPT"]=EFEQPBPT
+            Data2["EfiMotor BPT"]= EFIMOTBPT                      
+            Data2["EfiIncrementador BPT"]=EFIINCBPT         
+            Data2["EfiConjunto BPT"]=EFICONBPT              
+            Data2["Consumo BPT"]=CONEQPBPT
+            Data2["Corriente BPT"]=CORRIENTEBPT                
+            
+            
+            """     MAPA DE VARIABLES
+            -> 1 | Formato: $##.###.###,## | Costo_DRA
+            -> 2 | Formato: $##.###.###,## | Costo_EE
+            -> 3 | Formato: $##.###.###,## | Costo_T
+            -> 4 | Formato: ## | NBPCF
+            -> 5 | Formato: ##,## % | Info_BPCF["%BEP"][0]*100
+            -> 6 | Formato: ##,## % | Info_BPCF_Mot["FactorCarga(%)"][0]*100
+            -> 7 | Formato: ##,## % | Info_BPCF["Eff (%)"][0]*100
+            -> 8 | Formato: ##.##,## | Consumo_BPCF
+            -> 9 | Formato: ## | NBPCV
+            -> 10 | Formato: ##,## % | Info_BPCV["%BEP"][0]*100
+            -> 11 | Formato: ##,## % | Info_BPCV_Mot["FactorCarga(%)"][0]*100
+            -> 12 | Formato: ##,## % | Info_BPCV["Eff (%)"][0]*100
+            -> 13 | Formato: ##.##,## | Consumo_BPCV
+            -> 14 | Formato: ## | NBB
+            -> 15 | Formato: ##,## % | Info_BB["%BEP"][0]*100
+            -> 16 | Formato: ##,## % | Info_BB_Mot["FactorCarga(%)"][0]*100
+            -> 17 | Formato: ##,## % | Info_BB["Eff (%)"][0]*100
+            -> 18 | Formato: ##.##,## | Consumo_BB
+            -> 19 | Formato: ## | NBPT
+            -> 20 | Formato: ##,## % | Info_BPT_Mot["FactorCarga(%)"][0]*100
+            -> 21 | Formato: ##,## % | Info_BPT["Eff (%)"][0]*100 | Se debe corregir. No es eficiencia del intercambiador es eficiencia del equipo
+            -> 22 | Formato: ##.##,## | Consumo_BPT
+            """                 
     
     elif "btn-Optimizar" == ctx.triggered_id:
         
@@ -1303,6 +1322,7 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         TRM=trm(date)
         print("TRM: "+str(TRM))
         Tarifa_DRA=Tarifa_DRA*TRM
+        MOP_psi=1640
 
         ##--Los inputs económicos
 
@@ -1324,7 +1344,6 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         ##--Los inputs económicos
 
         GE=141.5/(131.5+API)
-        DRA_ppm=max(0,math.floor(DRA_ppm))
 
         dir_path = os.getcwd()
         endir=os.path.join(dir_path,"Optimizador")
@@ -1338,54 +1357,32 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         in_Num_max_BPCV=Data["Num BPC-V"]
         in_Num_max_BPCF=Data["Num BPC-F"]
 
+        BPC_var_doc=e2.Visc_Change("BPC.csv","BPC_var.csv",Visc,GE)
+        BPC_fija_doc=e2.Visc_Change("BPC.csv","BPC_fija.csv",Visc,GE)
+        BB_corr_doc=e2.Visc_Change("BB.csv","BB_corr.csv",Visc,GE)
 
-        if DRA_ppm>0:
-            
-            DRA_table=pd.read_csv(os.path.join(endir,"DRA.csv"),sep=";",decimal=',')
+        BPC_var_doc=e2.Impeller_Change(BPC_var_doc,"BPC_var.csv",311.15,op="var")
+        BPC_fija_doc=e2.Impeller_Change(BPC_fija_doc,"BPC_fija.csv",323.85,op="var")
 
-            DRA_table=DRA_table.iloc[9:]
-            N_Col=DRA_table.iloc[0]
-            DRA_table.columns=N_Col
-            DRA_table=DRA_table.iloc[1:]
-            DRA_table=DRA_table.replace(',','.',regex=True)
-            DRA_table=DRA_table.astype(float)
-            
-            for i in range(len(DRA_table)):
-                if Flujo<DRA_table[DRA_table.columns[0]][DRA_table.index[i]]:
-                    DRA_base=DRA_table[DRA_table.columns[1]][DRA_table.index[i-1]]
-                    break
-                elif i==len(DRA_table)-1:
-                    DRA_base=DRA_table[DRA_table.columns[1]][DRA_table.index[-1]]
-                    
-            dp_base=e2.pred_rf_model("COV_CTG.joblib",[[Flujo,GE,Visc,GE]])
-            
-            if e2.coef_adj_dra(b_Cov,DRA_ppm,Pd_in-Pr_CTG,DRA_base,dp_base,"m")>0:
-                m_Cov=e2.coef_adj_dra(b_Cov,DRA_ppm,Pd_in-Pr_CTG,DRA_base,dp_base)
+        BPC_fija_doc=e2.Stage_Change(BPC_fija_doc,"BPC_fija.csv",3,op="var")
 
-        e2.Visc_Change("BPC.csv","BPC_var.csv",Visc,GE)
-        e2.Visc_Change("BPC.csv","BPC_fija.csv",Visc,GE)
-        e2.Visc_Change("BB.csv","BB_corr.csv",Visc,GE)
+        BPC_fija_doc=e2.RPM_Change(BPC_fija_doc,"BPC_fija.csv",3587,op="var")
 
-        e2.Impeller_Change("BPC_var.csv","BPC_var.csv",311.15)
-        e2.Impeller_Change("BPC_fija.csv","BPC_fija.csv",323.85)
-
-        e2.Stage_Change("BPC_fija.csv","BPC_fija.csv",3)
-
-        e2.RPM_Change("BPC_fija.csv","BPC_fija.csv",3587)
-
-        Loop_BB=e2.Num_CP("BB_corr.csv",Flujo)
+        Loop_BB=e2.Num_CP(BB_corr_doc,Flujo)
         Num_min_BB=max(0,Loop_BB[1])
         Num_max_BB=min(in_Num_max_BB,Loop_BB[0])
 
         if Num_max_BB<Num_min_BB:
             Num_max_BB=Num_min_BB
 
-        xs = (x * pace for x in range(DRA_ppm*int(1/pace), (25+1)*int(1/pace)))
+        # xs = (x * pace for x in range(DRA_ppm*int(1/pace), (25+1)*int(1/pace)))
+        xs = (x * pace for x in range(0*int(1/pace), (25+1)*int(1/pace)))
 
         for NBB in range (Num_min_BB,Num_max_BB+1): 
+            # print(1)
             
             Flujo_BB=Flujo/NBB
-            Info_BB=e2.curve_calc("BB_corr.csv",Flujo_BB)
+            Info_BB=e2.curve_calc(BB_corr_doc,Flujo_BB,op="var")
             Info_BB_Mot=e2.melec_calc("Elect_Mot_BB.csv",Info_BB["Peje (kW)"][0])
             Consumo_BB=Info_BB_Mot["PotS (kW)"][0]*NBB
             
@@ -1399,9 +1396,13 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                 # print(ppm_proyec)
                 
                 Pd=e2.corr_dra(Pd_in-Pr_CTG,DRA_ppm,ppm_proyec,m_Cov,b_Cov)+Pr_CTG
+                
+                if Pd>MOP_psi:
+                    continue
             
                 
                 for NBPT in range(0,in_Num_max_BPT+1):
+                    # print(NBPT)
                     
                     if NBPT>0:
                         Info_BPT=e2.bpt_calc("BPT.csv",Visc,GE,Ps_BP,Pd)
@@ -1415,15 +1416,15 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                     
                     Flujo_BPC_T=Flujo-Flujo_BPT_T
                     
-                    Loop_BPCF=e2.Num_CP("BPC_fija.csv",Flujo_BPC_T)
+                    Loop_BPCF=e2.Num_CP(BPC_fija_doc,Flujo_BPC_T)
                     Num_min_BPCF=max(0,Loop_BPCF[1])
                     Num_max_BPCF=min(in_Num_max_BPCF,Loop_BPCF[0])
                     if Num_max_BPCF<Num_min_BPCF:
                         Num_max_BPCF=Num_min_BPCF
                     
-                    Loop_BPCV_mrpm=e2.Num_CP("BPC_var.csv",Flujo,3100)
+                    Loop_BPCV_mrpm=e2.Num_CP(BPC_var_doc,Flujo_BPC_T,3100)
                     Num_max_BPCV=min(in_Num_max_BPCV,Loop_BPCV_mrpm[0])
-                    Loop_BPCV_mrpm=e2.Num_CP("BPC_var.csv",Flujo,3560)
+                    Loop_BPCV_mrpm=e2.Num_CP(BPC_var_doc,Flujo_BPC_T,3560)
                     Num_min_BPCV=min(0,Loop_BPCV_mrpm[1])
                     if Num_max_BPCV<Num_min_BPCV:
                         Num_max_BPCV=Num_min_BPCV
@@ -1438,12 +1439,15 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                             Cumpl_BPT=False
                             Cumpl_Flux=False
                             
-                            if ((Flujo_BPC_T>0 and (NBPCF+NBPCV>0))or(Flujo_BPC_T==0 and NBPCF+NBPCV==0)):
+                            if (NBPT+NBPCF+NBPCV)==0:
+                                
+                                continue
+                            
+                            if ((Flujo_BPC_T>0 and (NBPCF+NBPCV>0))or(Flujo_BPC_T==0 and NBPCF+NBPCV==0)): ##Revisar si es posible agregar tolerancia de flujo para BPT
                                 
                                 try:
                                     DP_BPC_BB=e2.Covena_dp_bb("BB_BPC.csv",NBPT,NBPCF+NBPCV,Visc,GE,Flujo)
-                                    
-                                    Ps_BP=Ps_TK+Info_BB["TDH (psi)"]-DP_BPC_BB_aux
+                                    Ps_BP=float(Ps_TK+Info_BB["TDH (psi)"]-DP_BPC_BB)
                                     PD_BB=float(Ps_TK+Info_BB["TDH (psi)"])
                                     
                                     if NBPT>0:
@@ -1453,9 +1457,9 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                                         Consumo_BPT=Info_BPT_Mot["PotS (kW)"][0]*NBPT
                                         Flujo_BPT_T=Info_BPT["Flujo (BPH)"][0]*NBPT
                                     else:
-                                        Eff_Incr=0
                                         Consumo_BPT=0
                                         Flujo_BPT_T=0
+                                        Eff_Incr=0
                                         Name_columns=['Flujo (BPH)','TDH (psi)','Vel (RPM)','PH (kW)','Eff (%)','Peje (kW)']
                                         Info_BPT=[[0,0,0,0,0,0]]
                                         Info_BPT=pd.DataFrame(Info_BPT,columns=Name_columns)
@@ -1468,7 +1472,7 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                                     
                                     if NBPCF>0:
                                         Flujo_BPC_F=Flujo_BPC_T/NBPCF
-                                        Info_BPCF=e2.curve_calc("BPC_fija.csv",Flujo_BPC_F)
+                                        Info_BPCF=e2.curve_calc(BPC_fija_doc,Flujo_BPC_F,op="var")
                                         Info_BPCF_Mot=e2.melec_calc("Elect_Mot_BPC.csv",Info_BPCF["Peje (kW)"][0])
                                         Consumo_BPCF=Info_BPCF_Mot["PotS (kW)"][0]*NBPCF
                                     else:
@@ -1483,8 +1487,10 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                                     
                                     if NBPCV>0:
                                         Flujo_BPC_V=Flujo_BPC_T/NBPCV
-                                        TDH_BPCV=(Pd-Ps_BP)-Info_BPCF["TDH (psi)"][0]
-                                        Info_BPCV=e2.rpmvar_predicted("BPC_var.csv",Flujo_BPC_V,TDH_BPCV)
+                                        TDH_BPCV=float((Pd-Ps_BP)-Info_BPCF["TDH (psi)"][0])
+                                        Info_BPCV=e2.rpmvar_predicted(BPC_var_doc,Flujo_BPC_V,TDH_BPCV,ops="var")
+                                        # print(Info_BPCV)
+                                        # print(Pd, "Presion Suc: ",Ps_BP,"BPCF: ",float(Info_BPCF["TDH (psi)"][0]))
                                         Info_BPCV_Var=e2.varmec_calc("Var_Hidr.csv",float(Info_BPCV["Vel (RPM)"][0]))
                                         Info_BPCV_Mot=e2.melec_calc("Elect_Mot_BPC.csv",float(Info_BPCV["Peje (kW)"][0]/Info_BPCV_Var["Eff_Var(%)"][0]))
                                         Consumo_BPCV=Info_BPCV_Mot["PotS (kW)"][0]*NBPCV
@@ -1503,6 +1509,9 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                                     
                                     
                                     
+                                    # print("BPCF: ",NBPCF," presión:",Info_BPCF["TDH (psi)"][0])
+                                    # print("BPCV: ",NBPCV," presión:",Info_BPCV["TDH (psi)"][0])
+                                    
                                     if (NBPCV >0 or NBPCF >0):
                                         Pd_BPC=float(Info_BPCF["TDH (psi)"][0]+Info_BPCV["TDH (psi)"][0]+Ps_BP)
                                     
@@ -1510,7 +1519,10 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                                         Pd_BPC=float(Pd)
                                         
                                     if (Pd_BPC<=Pd+tol and Pd_BPC>=Pd-tol):
-                                        Cumpl_Flux=True    
+                                        Cumpl_Flux=True
+                                        
+                                    # if NBPCF>0 and NBPCV>0:
+                                        # print(Pd_BPC," TDH Requerido: ",TDH_BPCV," Calculado: ",Info_BPCV["TDH (psi)"][0])
                                     
                                     if (NBPT>0):
                                         if(Info_BPT_Mot["FactorCarga (%)"][0]<Limits["FC_Motor"][0]):
@@ -1537,18 +1549,24 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                                         Cumpl_BPCF=True    
                                         
                                     
+                                    # print("New_IT")
+                                    # print("Flux: ",Cumpl_Flux)
+                                    # print("BPT: ",Cumpl_BPT)
+                                    # print("BB: ",Cumpl_BB)
+                                    # print("BPCV: ",Cumpl_BPCV)
+                                    # print("BPCF: ",Cumpl_BPCF)
                                     
-                                        
                                     Costo_EE=(Consumo_BPT+Consumo_BPCF+Consumo_BPCV+Consumo_BB)*Tarifa_Elect
                                     Costo_DRA=(ppm_proyec*Flujo)*42/1e6*Tarifa_DRA
                                     Costo_T=Costo_DRA+Costo_EE
-                                    
                                     it=it+1
+                                    
                                 except:
                                     pass
                                 
                                 if (Cumpl_BPT and Cumpl_BB and Cumpl_BPCF and Cumpl_BPCV and Cumpl_Flux):
                                     it_true=it_true+1
+                                    # print("It: ",it_true, "Costo_T: ",Costo_T)
                                     
                                     if (Costo_T<Costo_T_opt and Costo_T>0):
                                         it_op=it_op+1
@@ -1565,12 +1583,12 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                                         Info_BPT_opt=Info_BPT
                                         Info_BPT_Mot_opt=Info_BPT_Mot    
                                         
-                                        NBCPV_opt=NBPCV
+                                        NBPCV_opt=NBPCV
                                         Info_BPCV_opt=Info_BPCV
                                         Info_BPCV_Mot_opt=Info_BPCV_Mot    
                                         Info_BPCV_Var_opt=Info_BPCV_Var
                                         
-                                        NBCPF_opt=NBPCF
+                                        NBPCF_opt=NBPCF
                                         Info_BPCF_opt=Info_BPCF
                                         Info_BPCF_Mot_opt=Info_BPCF_Mot
                                             
@@ -1578,9 +1596,6 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
                                         Pd_opt=Pd
                                         Ps_BP_opt=Ps_BP
                                         
-                                        
-                                    
-                                                                                
                                     # print(NBB)
                                     # print(NBPT)
                                     # print(NBPCV)
@@ -1604,7 +1619,7 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         Eff_ConjBPCV=Info_BPCV_opt["Eff (%)"][0]*Info_BPCV_Mot_opt["Eff_Mot (%)"][0]*Info_BPCV_Var_opt["Eff_Var(%)"][0]
         Eff_ConjBPT=Info_BPT_opt["Eff (%)"][0]*Info_BPT_Mot_opt["Eff_Mot (%)"][0]*Eff_Incr_opt
 
-        Flux,TDH,RPM=e2.Covena_Graph("BPC_fija.csv",NBCPF_opt,"BPC_var.csv",NBCPV_opt,"BPT.csv",NBPT_opt,real_ps=float(Ps_BP_opt))
+        Flux,TDH,RPM=e2.Covena_Graph(BPC_fija_doc,NBPCF_opt,BPC_var_doc,NBPCV_opt,"BPT.csv",NBPT_opt,real_ps=float(Ps_BP_opt),op="var")
 
         vec_ppm,vec_red,real_red=e2.dra_graph(ppm_opt,m_Cov,b_Cov)
         
@@ -1614,6 +1629,15 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         'Flux':Flux,
         'TDH':TDH
         }
+        
+        """        
+        print("-------")
+        print(type(Flujo), len(Flujo))
+        print(type(Pd_opt), len(Pd_opt))
+        print(type(Flux), len(Flux))
+        print(type(TDH), len(TDH))
+        """
+        
         df1 = pd.DataFrame(dataf1)
         
         fig1.data=[]
@@ -1658,14 +1682,14 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         df2 = pd.DataFrame(dataf2)
         
         fig2.add_trace(
-            go.Line(x=df2['VecP'], y=df2['VecR'], marker_color='Gold')
+            go.Line(x=df2['VecP'], y=df2['VecR']*100, marker_color='Gold')
                     )
 
         fig2.add_trace(
             go.Scatter(
                 mode="markers",
                 x=df2['PpmO'],
-                y=df2['RealR'],
+                y=df2['RealR']*100,
                 marker=dict(
                 color='Red',
                 size=10
@@ -1673,14 +1697,14 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
    
         fig2.update_layout(
              title={
-                        'text': "Rendimiento DRA",
+                        'text': "Rendimiento DRA [%]",
                         'y':0.9, # new
                         'x':0.5,
                         'xanchor': 'center',
                         'yanchor': 'top' # new
                         },
             xaxis_title="DRA (ppm)",
-            yaxis_title="Rendimiento",
+            yaxis_title="Rendimiento [%]",
             )
         
         fig2.update_traces(line_color='gold')
@@ -1691,14 +1715,14 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         
         AhorroT="{:,.2f} %".format(((Costo_TB-Costo_T_opt)/Costo_TB)*100)
 
-        BPCF=NBPCF
+        BPCF=NBPCF_opt
         BEP="{:,.2f} %".format(round(Info_BPCF_opt["%BEP"][0]*100,2))
         FCMOTOR="{:,.2f} %".format(round(Info_BPCF_Mot_opt["FactorCarga (%)"][0]*100,2))
         #FCMOTOR="Error"
         EFIEQP="{:,.2f} %".format(round(Info_BPCF_opt["Eff (%)"][0]*100,2))
         CONEQP="{:,.2f}".format(round(Consumo_BPCF,2))
 
-        BPCV=NBPCV
+        BPCV=NBPCV_opt
         BEP2="{:,.2f} %".format(round(Info_BPCV_opt["%BEP"][0]*100,2))
         FCMOTOR2="{:,.2f} %".format(round(Info_BPCV_Mot_opt["FactorCarga (%)"][0]*100,2))
         RPM="{:,.2f}".format(round(Info_BPCV_opt["Vel (RPM)"][0],2))
@@ -1707,14 +1731,14 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         CONEQPVAR="{:,.2f}".format(round(Consumo_BPCV,2))
 
         
-        BB=NBB
+        BB=NBB_opt
         BEP3="{:,.2f} %".format(round(Info_BB_opt["%BEP"][0]*100,2))
         FCMOTOR3="{:,.2f} %".format(round(Info_BB_Mot_opt["FactorCarga (%)"][0]*100,2))
         #FCMOTOR3="Error"
         EFEQPBB="{:,.2f} %".format(round(Info_BB_opt["Eff (%)"][0]*100,2))
         CONEQPBB="{:,.2f}".format(round(Consumo_BB,2))
         
-        BPT=NBPT
+        BPT=NBPT_opt
         FCMOTOR4="{:,.2f} %".format(round(Info_BPT_Mot_opt["FactorCarga (%)"][0]*100,2))
         #FCMOTOR4="Error"
         EFEQPBPT="{:,.2f} %".format(round(Info_BPT_opt["Eff (%)"][0]*100,2))
@@ -1828,11 +1852,88 @@ def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,
         
     elif "btn-Detener" == ctx.triggered_id:
         print("Detener")
+        
+    elif "btn-Estimar" == ctx.triggered_id:
+        print("Estimando...")
+        
+        #Se llama la tabla de DRA
+        
+        Flujo=float(flujo)
+        Visc=float(viscocidad)
+        API=float(api)
+        
+        GE=141.5/(131.5+API)
+        
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Optimizador")
+        DRA_table=pd.read_csv(os.path.join(endir,"DRA.csv"),sep=";",decimal=',')
+        start_table=pd.read_csv(os.path.join(endir,"start_values.csv"),sep=";",decimal=',')
+
+
+        DRA_table=DRA_table.iloc[9:]
+        N_Col=DRA_table.iloc[0]
+        DRA_table.columns=N_Col
+        DRA_table=DRA_table.iloc[1:]
+        DRA_table=DRA_table.replace(',','.',regex=True)
+        DRA_table=DRA_table.astype(float)
+
+        start_table=start_table.iloc[9:]
+        N_Col=start_table.iloc[0]
+        start_table.columns=N_Col
+        start_table=start_table.iloc[1:]
+        start_table=start_table.replace(',','.',regex=True)
+        start_table=start_table.astype(float)
+
+        for i in range(len(DRA_table)):
+            if Flujo<DRA_table[DRA_table.columns[0]][DRA_table.index[i]]:
+                DRA_base=DRA_table[DRA_table.columns[1]][DRA_table.index[i-1]]
+                break
+            elif i==len(DRA_table)-1:
+                DRA_base=DRA_table[DRA_table.columns[1]][DRA_table.index[-1]]
+                
+        dp_base=float(e2.pred_rf_model("COV_CTG.joblib",[[Flujo,GE,Visc,GE]]))
+
+        visc_range=start_table.iloc[0,1:].astype(float)
+
+
+        select_table=start_table[start_table["Visc_min"]<=Visc]
+        select_table=select_table[select_table["Visc_max"]>=Visc]
+        select_table=select_table[select_table["API_min"]<=API]
+        select_table=select_table[select_table["API_max"]>=API]
+        select_table=select_table[select_table["Flujo"]<=Flujo]
+        select_table=select_table.iloc[-1:]
+
+
+        ## Outputs DRA_base, dp_base, NBB, NBPT, NBPCV, NBPCF
+
+        if select_table.empty:  
+            
+            NBB_base=7
+            NBPT_base=4
+            NBPCV_base=1
+            NBPCF_base=1
+
+        else:
+            
+            NBB_base=float(select_table["#BB"])
+            NBPT_base=float(select_table["#BPT"])
+            NBPCV_base=float(select_table["#BPC Variable"])
+            NBPCF_base=float(select_table["#BPC Fija"])
+            
+            
+        numUnidadesIN=NBB_base
+        numEqpVarIN=NBPCV_base
+        numEqpFijoIN= NBPCF_base
+        numEqpParIN=NBPT_base
+        draTotIN=round(DRA_base,2)
+        pDesIN=round(dp_base,2)
+
+
     
     return [BPCF, BEP, FCMOTOR, CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,AhorroT,BPCV,BEP2,FCMOTOR2,RPM,BB,BEP3,FCMOTOR3,
                   BPT,FCMOTOR4, Simular, fig1, fig2, flujoIN,viscocidadIN,
                   apiIN, numUnidadesIN, numEqpVarIN, numEqpFijoIN, numEqpParIN,
-                  draTotIN, pRecIN, pDesIN, tarifaEleIN, tarifaDRAIN, pBoosterIN, vBPIN, EstadoID, Est1, Est2, Data2]
+                  draTotIN, pRecIN, pDesIN, tarifaEleIN, tarifaDRAIN, pBoosterIN, vBPIN, EstadoID, Est1, Est2, Data2, False]
 
 #Ocultar Tarjetas
 @app.callback(
@@ -1925,14 +2026,14 @@ def sync_checklists(Opt):
         sty2={"display":"none"}
         sty3={"display":"none"}
         sty4={"display":"none"}
-        sEnt={"height": "580px"}
+        sEnt={"height": "600px"}
         
     else:
         sty1={"display":"block"}
         sty2={"display":"block"}
         sty3={"display":"block"}
         sty4={"display":"block"}
-        sEnt={"height": "790px"}
+        sEnt={"height": "815px"}
 
     return [sty1,sty2,sty3,sty4,sEnt]
 
@@ -2132,4 +2233,4 @@ def update_output(Data2, value, value2, inp):
         return ["",""]
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)

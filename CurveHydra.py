@@ -16,14 +16,17 @@ import joblib
 
 #--FUNCIÓN CORRECCIÓN CURVAS POR VISCOSIDAD Y GE--
 #--------------------------------------------------------------------------------------------------------------------   
-def Visc_Change(f_name,end_name,Real_Visc,Real_GE):
+def Visc_Change(f_name,end_name,Real_Visc,Real_GE,op="csv",re="y",sv="n"):
     
+    if op=="csv":
 #-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
-
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
     CurvDat=Curve_DF.iloc[9:]
@@ -65,18 +68,27 @@ def Visc_Change(f_name,end_name,Real_Visc,Real_GE):
     Curve_DF[10:]=CurvDat
     Curve_DF["Unnamed: 1"][2]=Real_Visc
     Curve_DF["Unnamed: 1"][3]=Real_GE
-    Dir_Final=os.path.join(endir,end_name)
-    Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)
+    
+    if re=="y":
+        return Curve_DF
+    
+    if sv!="n":    
+        Dir_Final=os.path.join(endir,end_name)
+        Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)
 
 #--FUNCIÓN PARA CORREGIR EL TDH DEPENDIENDO DE GE--
 # #--------------------------------------------------------------------------------------------------------------------
-def ge_Change(f_name,end_name,Real_GE):
+def ge_Change(f_name,end_name,Real_GE,op="csv",re="y",sv="n"):
 
+    if op=="csv":
 #-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
 
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -98,18 +110,29 @@ def ge_Change(f_name,end_name,Real_GE):
     Curve_DF[10:]=CurvDat
     Curve_DF["Unnamed: 1"][3]=Real_GE*1000
     Dir_Final=os.path.join(endir,end_name)
-    Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)    
+    Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)  
+    
+    if re=="y":
+        return Curve_DF
+    
+    if sv!="n":    
+        Dir_Final=os.path.join(endir,end_name)
+        Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)
 
 
 #--FUNCIÓN PARA CORREGIR EL DIÁMETRO DEL IMPELLER DE LAS CURVAS DE BOMBAS--
 # #--------------------------------------------------------------------------------------------------------------------
-def Impeller_Change(f_name,end_name,Real_Impeller,Real_Medida="mm"):
+def Impeller_Change(f_name,end_name,Real_Impeller,Real_Medida="mm",op="csv",re="y",sv="n"):
 
+    if op=="csv":
 #-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
 
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -137,18 +160,27 @@ def Impeller_Change(f_name,end_name,Real_Impeller,Real_Medida="mm"):
     ##Introducir los datos al CSV y actualizarlo
     Curve_DF[10:]=CurvDat
     Curve_DF["Unnamed: 1"][8]=Real_Impeller/25.4
-    Dir_Final=os.path.join(endir,end_name)
-    Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)    
+    
+    if re=="y":
+        return Curve_DF
+    
+    if sv!="n":    
+        Dir_Final=os.path.join(endir,end_name)
+        Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)    
 
 #--FUNCIÓN PARA CORREGIR EL DIÁMETRO DEL IMPELLER DE LAS CURVAS DE BOMBAS--
 # #--------------------------------------------------------------------------------------------------------------------
-def Stage_Change(f_name,end_name,Real_Stage):
+def Stage_Change(f_name,end_name,Real_Stage,op="csv",re="y",sv="n"):
 
+    if op=="csv":
 #-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
 
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -172,18 +204,27 @@ def Stage_Change(f_name,end_name,Real_Stage):
     ##Introducir los datos al CSV y actualizarlo
     Curve_DF[10:]=CurvDat
     Curve_DF["Unnamed: 1"][7]=Real_Stage
-    Dir_Final=os.path.join(endir,end_name)
-    Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)
+    
+    if re=="y":
+        return Curve_DF
+    
+    if sv!="n":    
+        Dir_Final=os.path.join(endir,end_name)
+        Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)    
 
 #--FUNCIÓN PARA CORREGIR LA CURVA CON CAMBIO DE RPM--
 #--------------------------------------------------------------------------------------------------------------------   
-def RPM_Change(f_name,end_name,Real_RPM):
+def RPM_Change(f_name,end_name,Real_RPM,op="csv",re="y",sv="n"):
     
+    if op=="csv":
 #-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
 
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -210,18 +251,27 @@ def RPM_Change(f_name,end_name,Real_RPM):
     ##Introducir los datos al CSV y actualizarlo
     Curve_DF[10:]=CurvDat
     Curve_DF["Unnamed: 1"][4]=Real_RPM
-    Dir_Final=os.path.join(endir,end_name)
-    Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)
+    
+    if re=="y":
+        return Curve_DF
+    
+    if sv!="n":    
+        Dir_Final=os.path.join(endir,end_name)
+        Curve_DF.to_csv(Dir_Final,sep=";",decimal=',',index=False)   
 
 #--FUNCIÓN CÁLCULO DE VARIABLES DE BOMBAS--
 #--------------------------------------------------------------------------------------------------------------------   
-def curve_calc(f_name,Real_Flujo,Real_RPM="N",Medida="psi"):
+def curve_calc(f_name,Real_Flujo,op="csv",Real_RPM="N",Medida="psi"):
 
+    if op=="csv":
 #-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
 
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -297,13 +347,17 @@ def curve_calc(f_name,Real_Flujo,Real_RPM="N",Medida="psi"):
 
 #--FUNCIÓN CÁLCULO VARIABLES RELEVANTES PARA BPT--
 #--------------------------------------------------------------------------------------------------------------------   
-def bpt_calc(f_name,Real_Visc,Real_GE,Real_Ps,Real_Pd):
+def bpt_calc(f_name,Real_Visc,Real_GE,Real_Ps,Real_Pd,op="csv"):
     
-    #-Llamar la curva al código-
+    if op=="csv":
+#-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
 
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -340,14 +394,18 @@ def bpt_calc(f_name,Real_Visc,Real_GE,Real_Ps,Real_Pd):
 
 #--FUNCIÓN CALCULO DE PROPIEDADES DE MOTORES ELÉCTRICOS--
 #--------------------------------------------------------------------------------------------------------------------   
-def melec_calc(f_name,p_in,V_in=6550,Medida="kW"):
+def melec_calc(f_name,p_in,V_in=6550,Medida="kW",op="csv"):
     
-    #-Llamar la curva al código-
+    if op=="csv":
+#-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
-    Curve_DF=Curve_DF.replace(',','.',regex=True)
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        Curve_DF=Curve_DF.replace(',','.',regex=True)
+    
+    else:
+        Curve_DF=f_name
     
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -390,13 +448,17 @@ def melec_calc(f_name,p_in,V_in=6550,Medida="kW"):
 
 #--FUNCIÓN CALCULO DE PROPIEDADES DE VARIADORES DE VELOCIDAD MECÁNICOS--
 #--------------------------------------------------------------------------------------------------------------------   
-def varmec_calc(f_name,rpm_in):
+def varmec_calc(f_name,rpm_in,op="csv"):
     
-    #-Llamar la curva al código-
+    if op=="csv":
+#-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
     
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -435,13 +497,17 @@ def varmec_calc(f_name,rpm_in):
     
 #--FUNCIÓN ESTIMACIÓN DE RPM BPC--
 #--------------------------------------------------------------------------------------------------------------------   
-def rpmvar_predicted(f_name,Real_Flujo,Real_TDH):
+def rpmvar_predicted(f_name,Real_Flujo,Real_TDH,ops="csv"):
     
-    #-Llamar la curva al código-
+    if ops=="csv":
+#-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_DF=pd.read_csv(os.path.join(endir,f_name),sep=";",decimal=',')
+    
+    else:
+        Curve_DF=f_name
 
 #-Aislar puntos de curva-
 #--------------------------------------------------------------------------------------------------------------------
@@ -476,12 +542,12 @@ def rpmvar_predicted(f_name,Real_Flujo,Real_TDH):
     zetha=poly_reg_model.intercept_
     
     FC=(-betha-math.sqrt(betha**2-4*alpha*zetha))/(2*alpha)
-    RPM_Real=float(Nominal_RPM/FC)
+    RPM_corr=float(Nominal_RPM/FC)
 
 #     #-cálculo de variables de energía-
 # #--------------------------------------------------------------------------------------------------------------------    
     
-    Results=curve_calc(f_name,Real_Flujo,RPM_Real)
+    Results=curve_calc(f_name,Real_Flujo,Real_RPM=RPM_corr,op=ops)
     
  
     #Se guardan en dataframes
@@ -514,15 +580,21 @@ def Covena_dp_bb(f_name,NBPT,NBPC,Real_Visc,Real_GE,Real_Flujo):
 
 #--FUNCIÓN GENERACIÓN DE GRÁFICAS DE CURVAS DE BOMBAS--
 #--------------------------------------------------------------------------------------------------------------------   
-def Covena_Graph(Ub_fija,Num_fija,Ub_var,Num_var,Ub_Tor,Num_Tor,real_ps=102,BEP_min=0.74,BEP_max=1.14,rpm_min=3100,rpm_max=3560):
-    #-Llamar la curva al código-
+def Covena_Graph(Ub_fija,Num_fija,Ub_var,Num_var,Ub_Tor,Num_Tor,real_ps=102,BEP_min=0.74,BEP_max=1.14,rpm_min=3100,rpm_max=3560,op="csv"):
+    if op=="csv":
+#-Llamar la curva al código-
 #--------------------------------------------------------------------------------------------------------------------    
-    dir_path = os.getcwd()
-    endir=os.path.join(dir_path,"Curves")
-    Curve_fija=pd.read_csv(os.path.join(endir,Ub_fija),sep=";",decimal=',')
-    Curve_var=pd.read_csv(os.path.join(endir,Ub_var),sep=";",decimal=',')
-    Curve_fija=Curve_fija.replace(',','.',regex=True)
-    Curve_var=Curve_var.replace(',','.',regex=True)
+        dir_path = os.getcwd()
+        endir=os.path.join(dir_path,"Curves")
+        Curve_fija=pd.read_csv(os.path.join(endir,Ub_fija),sep=";",decimal=',')
+        Curve_var=pd.read_csv(os.path.join(endir,Ub_var),sep=";",decimal=',')
+        Curve_fija=Curve_fija.replace(',','.',regex=True)
+        Curve_var=Curve_var.replace(',','.',regex=True)  
+    else:
+        Curve_fija=Ub_fija
+        Curve_var=Ub_var
+        Curve_fija=Curve_fija.replace(',','.',regex=True)
+        Curve_var=Curve_var.replace(',','.',regex=True)  
     
 
 #-Aislar puntos de curva fija-
@@ -594,8 +666,12 @@ def Covena_Graph(Ub_fija,Num_fija,Ub_var,Num_var,Ub_Tor,Num_Tor,real_ps=102,BEP_
         PSI_Graph=np.zeros(len(Flux_Graph))
         
         for x in range(len(PSI_Graph)):
-            calc_fija=curve_calc(Ub_fija,Flux_Graph[x]/Num_fija,RPM_Graph[x])
-            calc_var=curve_calc(Ub_var,Flux_Graph[x]/Num_var,RPM_Graph[x])
+            if op=="csv":
+                calc_fija=curve_calc(Ub_fija,Flux_Graph[x]/Num_fija,RPM_Graph[x])
+                calc_var=curve_calc(Ub_var,Flux_Graph[x]/Num_var,RPM_Graph[x])
+            else:
+                calc_fija=curve_calc(Curve_fija,Flux_Graph[x]/Num_fija,op="var",Real_RPM=RPM_Graph[x])
+                calc_var=curve_calc(Curve_var,Flux_Graph[x]/Num_var,op="var",Real_RPM=RPM_Graph[x])
             PSI_Graph[x]=calc_fija["TDH (psi)"][0]+calc_var["TDH (psi)"][0]+real_ps
             if Num_Tor>0:
                 calc_tor=bpt_calc(Ub_Tor,Real_Visc,Real_GE,real_ps,float(PSI_Graph[x]))
@@ -632,7 +708,10 @@ def Covena_Graph(Ub_fija,Num_fija,Ub_var,Num_var,Ub_Tor,Num_Tor,real_ps=102,BEP_
         PSI_Graph=np.zeros(len(Flux_Graph))
         
         for x in range(len(PSI_Graph)):
-            calc_var=curve_calc(Ub_var,Flux_Graph[x]/Num_var,RPM_Graph[x])
+            if op=="csv":
+                calc_var=curve_calc(Ub_var,Flux_Graph[x]/Num_var,RPM_Graph[x])
+            else:
+                calc_var=curve_calc(Curve_var,Flux_Graph[x]/Num_var,op="var",Real_RPM=RPM_Graph[x])
             PSI_Graph[x]=calc_var["TDH (psi)"][0]+real_ps
             if Num_Tor>0:
                 calc_tor=bpt_calc(Ub_Tor,Real_Visc,Real_GE,real_ps,float(PSI_Graph[x]))
@@ -647,7 +726,10 @@ def Covena_Graph(Ub_fija,Num_fija,Ub_var,Num_var,Ub_Tor,Num_Tor,real_ps=102,BEP_
         PSI_Graph=np.zeros(100)
         
         for x in range(len(PSI_Graph)):
-            calc_fija=curve_calc(Ub_fija,Flux_Graph[x]/Num_fija,RPM_Graph[x])
+            if op=="csv":
+                calc_fija=curve_calc(Ub_fija,Flux_Graph[x]/Num_fija,RPM_Graph[x])
+            else:
+                calc_fija=curve_calc(Curve_fija,Flux_Graph[x]/Num_fija,op="var",Real_RPM=RPM_Graph[x])
             PSI_Graph[x]=calc_fija["TDH (psi)"][0]+real_ps
             if Num_Tor>0:
                 calc_tor=bpt_calc(Ub_Tor,Real_Visc,Real_GE,real_ps,float(PSI_Graph[x]))
@@ -679,7 +761,7 @@ def Covena_Graph(Ub_fija,Num_fija,Ub_var,Num_var,Ub_Tor,Num_Tor,real_ps=102,BEP_
 #--FUNCIÓN PARA DEFINIR NUMERO MÍNIMO DE BOMBAS PARA OPERAR EN UN RANGO DE FLUJO--
 #--------------------------------------------------------------------------------------------------------------------   
 def Num_CP(f_name,flux_B,RPM="N",BEP_min=0.74,BEP_max=1.14):
-    Info_B=curve_calc(f_name,flux_B,RPM)
+    Info_B=curve_calc(f_name,flux_B,Real_RPM=RPM,op="var")
     flujo_min_B=(Info_B["Flujo (BPH)"][0]/Info_B["%BEP"][0])*BEP_min
     flujo_max_B=(Info_B["Flujo (BPH)"][0]/Info_B["%BEP"][0])*BEP_max
     if flux_B>=flujo_min_B:

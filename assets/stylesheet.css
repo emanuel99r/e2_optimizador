@@ -177,7 +177,7 @@ body {
 {
     background-color: #282D39;
     width: 300px;
-    height: 790px;
+    height: 600px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     text-align: center;
     margin: 10px;
@@ -841,4 +841,25 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.btnEstimar{
+    background-color: transparent;
+    border: #57b1cc 1px solid;
+    color: #57b1cc;
+    cursor: pointer;
+    border-radius: 3px;
+
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.btnEstimar:hover{
+    background-color: #57b1cc;
+    color: #272C38;
+    border: #272C38 1px solid;
+}
+
+.boxEstimar{
+    padding-left: 240px;
 }
