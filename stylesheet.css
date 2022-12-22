@@ -1,0 +1,865 @@
+body {
+    font-family: sans-serif;
+    background-color: #0B0C0E;
+}
+
+.BoxEntradas
+{
+    background-color: #282D39;
+    width: 400px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    padding: 20px;
+    border-radius: 5px;
+
+}
+
+.inputsBox:hover
+{
+    border-left: gold 5px solid;
+    border-right: gold 5px solid;
+    box-shadow: #00ff88;
+}
+
+
+.inputsBox
+{
+    background-color: #282b35;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    font-size: 4px;
+    text-align: center;
+    font-weight: bold;
+    border-left: #a7a3a3 5px solid;
+    border-right: #a7a3a3 5px solid;
+    border-bottom:none;
+    border-top: none;
+    border-radius: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 289px;
+    height: 40px;
+    margin-top: 10px;
+}
+
+.textInput
+{
+    color: #a7a3a3;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 2px;
+}
+
+.input
+{
+    font-size: 13px;
+    text-align: center;
+    font-weight: bold;
+    color: #ffffff;
+    background-color:#282b35;
+    border-bottom:#a7a3a3 1px solid;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    width: 280px;
+}
+
+.SugBoxTen
+{
+    margin-top: 10px;
+    margin-left: 30px;
+    /*background-color: #F64005;*/
+}
+
+.BoxSug
+{
+    background-color: #282D39;
+    width: 275px;
+    height: 492px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    padding: 20px;
+    border-radius: 5px;
+
+}
+
+.Creditos
+{
+    color: rgb(255, 255, 255);
+    background-color: #282D39;
+    font-size: 15px;
+    text-align: center;
+    font-weight:lighter;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    margin-left: 12px;
+    margin-top: 0px;
+    padding-bottom:none;
+    border-radius: 5px;
+    width: 98%;
+    height: 50px;
+}
+
+.Creditos1
+{
+    padding-top: 0.7%;
+}
+
+.SugTen
+{
+    color: #ffffff;
+    width: 170px;
+    height: 30px;
+    font-size: 18px;
+    text-align: left;
+    font-weight: bold;
+    padding: 0px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+
+.BoxMain
+{
+    background-color: #1e222b;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 3px;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.Titulo2
+{
+    color: #ffffff;
+    width: 400px;
+    height: 15px;
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+    padding: 0px;
+    margin-bottom: 0px;
+    margin-left: 20px;
+}
+
+.TituloMain
+{
+    color: #ffffff;
+    width: 980px;
+    text-align: center;
+    height: 15px;
+    font-size: 40px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.SubTituloMain
+{
+    color: #ffffff;
+    width: 980px;
+    text-align: center;
+    height: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 30px;
+}
+
+.Encabezados
+{
+    display: flex;
+}
+
+.Entradas
+{
+    background-color: #282D39;
+    width: 300px;
+    height: 600px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+    margin: 10px;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.Resultado
+{
+    background-color: #282D39;
+    width: 853px;
+    height: 1445px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+    margin: 10px;
+    padding: 15px;
+    border-radius: 5px;
+
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content:flex-start;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+
+.Result1
+{
+    background-color: #68696b;
+    width: 60%;
+    height: 4%;
+    font-size: 14px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    text-align: center;
+    padding: 8px;
+    border-radius: 5px;
+    color: #ffffff;
+    font-weight: bold;
+    border-left: #00ff88 3px solid;
+    border-right: #00ff88 3px solid;
+    border-bottom: none;
+    border-top: none;
+    margin-left: 15%;
+    margin-top: 10px;
+
+}
+
+.Result1Costos
+{
+    background-color: #68696b;
+    width: 60%;
+    height: 4%;
+    font-size: 14px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    text-align: center;
+    padding-bottom: 12px;
+    padding-top: 5px;
+    border-radius: 5px;
+    color: #ffffff;
+    font-weight: bold;
+    border-left: gold 3px solid;
+    border-right: gold 3px solid;
+    border-bottom: none;
+    border-top: none;
+    margin-left: 15%;
+    margin-top: 10px;
+
+}
+
+.Result2
+{
+    background-color: #a7a3a3;
+    border-radius: 5px;
+    width: 24%;
+    height: 372px;
+    margin-top: 13px;
+    margin-left: 0.5%;
+    margin-right: 0.5%;
+
+}
+
+.Result2Costos
+{
+    background-color: #a7a3a3;
+    border-radius: 5px;
+    width: 50%;
+    height: 46%;
+    margin-top: 13px;
+    margin-left: 0.5%;
+    margin-right: 0.5%;
+}
+
+.Result3
+{
+    background-color: #68696b;
+    width: 60%;
+    height: 5%;
+    font-size: 12px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    text-align: center;
+    padding: 5px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    color: #ffffff;
+    font-weight: bold;
+    border-left: none;
+    border-right: none;
+    border-bottom: #00ff88 3px solid;
+    border-top: none;
+    margin-left: 17%;
+}
+
+.Result3Costos
+{
+    background-color: #68696b;
+    width: 60%;
+    height: 5%;
+    font-size: 12px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    text-align: center;
+    padding: 5px;
+    margin-bottom: 19px;
+    border-radius: 5px;
+    color: #ffffff;
+    font-weight: bold;
+    border-left: none;
+    border-right: none;
+    border-bottom: gold 3px solid;
+    border-top: none;
+    margin-left: 17%;
+    margin-top: -3px;
+}
+
+.Result4
+{
+    border-radius: 3px;
+    padding-bottom: 3px;
+    padding-top: 0px;
+    margin-top: 2px;
+    display: flex;
+}
+
+.Result4Costos
+{
+    border-radius: 3px;
+    padding: 8px;
+    margin-top: 10px;
+    margin-left: 40px;
+    width: 80%;
+
+    display: flex;
+}
+
+.icono1
+{
+    width: 55px;
+    padding: 5px;
+}
+
+.icono2
+{
+    width: 63px;
+    padding: 15px;
+}
+
+.icono3
+{
+    width: 115px;
+    padding: 15px;
+}
+
+
+.textResult1
+{
+    color: #3a3b3b;
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;
+    width: 50%;
+    margin-left: 10px;
+    margin-right: 8px;
+    margin-bottom: 5px;
+}
+
+.textResult1AhorroT
+{
+    color: #3a3b3b;
+    font-size: 12px;
+    text-align: right;
+    font-weight: bold;
+    width: 50%;
+    margin-left: -50px;
+    margin-right: 8px;
+    margin-bottom: 5px;
+}
+
+.textResul2
+{
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+    color: #3a3b3b;
+    background-color:#C4C1C1;
+    border-bottom:#00ff88 3px solid;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    width: 35%;
+    height: 18px;
+    pointer-events:none;
+    border-radius: 5px;
+    padding-top: 2%;
+}
+
+.textResul2Costos
+{
+    font-size: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: #3a3b3b;
+    background-color:#C4C1C1;
+    border-bottom:gold 3px solid;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    width: 45%;
+    pointer-events:none;
+    border-radius: 5px;
+    padding-top: 2%;
+}
+
+.Simulador
+{
+    display: flex;
+    flex-direction:row;
+    flex-wrap: wrap;
+}
+
+.Buttons
+{
+    height: 100px;
+    width: 250px;
+    padding-top: 40px;
+    margin-left: 50px;
+
+    display: flex;
+    flex-direction: column;
+
+}
+
+
+.btn1 {
+    margin-bottom: 10px;
+    min-width: 130px;
+    height: 40px;
+    color: rgb(12, 12, 12);
+    padding: 5px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    outline: none;
+    border-radius: 5px;
+    border: none;
+    background: #80d7ed;
+    box-shadow: 0 5px #57b1cc;
+  }
+  .btn1:hover {
+    box-shadow: 0 3px #57b1cc;
+    top: 1px;
+  }
+  .btn1:active {
+    box-shadow: 0 0 #4a6459;
+    top: 8px;
+  }
+
+  .btn2 {
+    margin-bottom: 10px;
+    min-width: 130px;
+    height: 40px;
+    color: rgb(12, 12, 12);
+    padding: 5px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    outline: none;
+    border-radius: 5px;
+    border: none;
+    background: #e2ed80;
+    box-shadow: 0 5px #adcc57;
+  }
+  .btn2:hover {
+    box-shadow: 0 3px #adcc57;
+    top: 1px;
+  }
+  .btn2:active {
+    box-shadow: 0 0 #4a6459;
+    top: 8px;
+  }
+
+  .btn3 {
+    margin-bottom: 10px;
+    min-width: 130px;
+    height: 40px;
+    color: rgb(12, 12, 12);
+    padding: 5px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    outline: none;
+    border-radius: 5px;
+    border: none;
+    background: #80aced;
+    box-shadow: 0 5px #5776cc;
+  }
+  .btn3:hover {
+    box-shadow: 0 3px #5776cc;
+    top: 1px;
+  }
+  .btn3:active {
+    box-shadow: 0 0 #4a6459;
+    top: 8px;
+  }
+
+  .btn4 {
+    margin-bottom: 10px;
+    min-width: 130px;
+    height: 40px;
+    color: rgb(12, 12, 12);
+    padding: 5px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    outline: none;
+    border-radius: 5px;
+    border: none;
+    background: #ed8080;
+    box-shadow: 0 5px #cc5757;
+  }
+  .btn4:hover {
+    box-shadow: 0 3px #cc5757;
+    top: 1px;
+  }
+  .btn4:active {
+    box-shadow: 0 0 #4a6459;
+    top: 8px;
+  }
+
+  .btn-Actualizar {
+    height: 24px;
+    width: 25px;
+    color: rgb(12, 12, 12);
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
+
+    background-color: gold;
+    background-image:url("/assets/Actualizar1.png");
+    background-size: 25px;
+    background-repeat: no-repeat;
+    background-position: center;
+
+  }
+
+  .btn-Actualizar:hover {
+    background-image:url("/assets/Actualizar2.png");
+  }
+
+
+  .CostosR
+  {
+    width: 800px;
+    height: 200px;
+    padding-top: 13px;
+
+    display: flex;
+    flex-flow: row wrap;
+    flex-grow: 2;
+    justify-content: center;
+
+  }
+
+  .CostosRTotal
+  {
+    height: 40px;
+    width: 845px;
+    margin-top: 15px;
+    margin-left: 5px;
+    margin-bottom: -5px;
+    background-color: #a7a3a3;
+    border-radius: 5px;
+  }
+
+  .textResul2AhorroT
+{
+    font-size: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: #3a3b3b;
+    background-color:#C4C1C1;
+    border-bottom:gold 3px solid;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    width: 25%;
+    pointer-events:none;
+    border-radius: 5px;
+}
+
+.Result4AhorroT
+{
+    border-radius: 3px;
+    padding-bottom: 3px;
+    padding-top: 5px;
+    margin-top: 5px;
+    display: flex;
+}
+
+  .CostoHijo
+  {
+
+    background-color: #a7a3a3;
+    border-radius: 5px;
+    width: 48.601%;
+    height: 103%;
+    margin-left: 0.7%;
+    margin-right: 0.7%;
+
+    display: flex;
+    flex-direction: column;
+
+  }
+
+  .CostoHijoOptimo
+  {
+
+    background-color: #a7a3a3;
+    border-radius: 5px;
+    width: 48.601%;
+    height: 103%;
+    margin-left: 0.7%;
+    margin-right: 0.7%;
+
+    display: flex;
+    flex-direction: column;
+
+
+  }
+
+
+/*           FLEXBOX TUTORIAL           */
+
+
+
+.Container
+{
+    background-color: #00ff88;
+    height: 80vh;
+    padding: 20px;
+
+    display:flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+}
+
+.hijo
+{
+    background-color: #91a2db;
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+
+    display: flex;
+}
+
+
+.Check
+{
+    margin: 2px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.RestGrupo
+{
+    padding: 1px;
+    width: 96%;
+    border: #00ff88 1px solid;
+    border-radius: 5px;
+    margin-bottom: 10px;
+
+    display: flex;
+}
+
+.RestSubG1
+{
+    margin: 1px;
+    width: 50%;
+
+    display: flex;
+}
+
+.RestSubG11
+{
+    margin-top: 15px;
+    width: 50%;
+}
+
+.icono4
+{
+    width: 50px;
+}
+
+.RestSubG2
+{
+    width: 50%;
+    display:flex;
+}
+
+.TituloRest
+{
+    font-size: 12px;
+    width: 90%;
+    text-align: center;
+    padding-top: 5%;
+    padding-bottom: 2%;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    border-radius: 5px;
+    color: #ffffff;
+    font-weight: bold;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: #00ff88 5px solid;
+}
+
+.TituloRest1
+{
+    font-size: 15px;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    padding-top: 3px;
+    margin-bottom: 10px;
+    color: black;
+    font-weight: bold;
+    background-color: #00ff88;
+    border-radius: 5px;
+}
+
+.TituloRest2
+{
+    font-size: 15px;
+    width: 80%;
+    height: 26px;
+    text-align: center;
+    margin-bottom: 5%;
+    margin-top: -14px;
+    margin-left: -14px;
+    margin-right: 0px;
+    font-weight: bold;
+    background-color: gold;
+    border-radius: 5px;
+}
+
+.TituloRest3
+{
+    font-weight: bold;
+    background-color: gold;
+    margin-right: 3px;
+    border-radius: 5px;
+    width: 273px;
+    padding-top: 5px;
+}
+
+.TituloRest4
+{ 
+    background-color: transparent;
+    width: 310px;
+    margin-top: -10px;
+
+    display: flex;
+}
+
+
+.Rest
+{
+    background-color: #282D39;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+    border-radius: 5px;
+    width: 316px;
+    height: 300px;
+    padding: 5px;
+    margin-left: 12px;
+}
+
+.GraficoPadre
+{
+    width: 690px;
+    height: 800px;
+    padding-left: 40px;
+    margin-right: 10px;
+    margin-left: 15px;
+    margin-top: 10px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.GraficoHijo
+{
+    width: 750px;
+    height: 450px;
+    margin: 1px;
+}
+
+.Select
+{
+    color:#4c4d4e;
+    font-weight: bold;
+    width: 100px;
+    font-size: 12px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-left: -5px;
+}
+
+.LoadingBox
+{
+    margin-top: 60px;
+    color: #1E222B;
+}
+
+.Estados{
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+
+    margin-top: 15px;
+}
+
+.OpcA-Input
+{
+    margin-top: 5px;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btnEstimar{
+    background-color: transparent;
+    border: #57b1cc 1px solid;
+    color: #57b1cc;
+    cursor: pointer;
+    border-radius: 3px;
+
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.btnEstimar:hover{
+    background-color: #57b1cc;
+    color: #272C38;
+    border: #272C38 1px solid;
+}
+
+.boxEstimar{
+    padding-left: 240px;
+}

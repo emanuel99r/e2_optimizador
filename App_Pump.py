@@ -241,6 +241,7 @@ PREC=40
 PRED=1597
 TELE=547.7
 TDRA=19.06
+TTRM=trm(date)
 PSBOOSTER=12
 VBP=6550
 
@@ -853,6 +854,11 @@ Entradas=html.Div(
         ], className="inputsBox", id="tarifaDRAA"),
         
         html.Div([
+        html.Div("TRM [COP/USD]", className="textInput"),
+        dcc.Input(id='tarifaTRM', value=TTRM, type='text', className="input")
+        ], className="inputsBox", id="tarifaTRMA"),
+        
+        html.Div([
         html.Div("Ps Booster [PSIg]", className="textInput"),
         dcc.Input(id='pBooster', value=PSBOOSTER, type='text', className="input")
         ], className="inputsBox", id="pBoosterA"),
@@ -932,6 +938,7 @@ app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain")
     Output('pDes', 'value'),
     Output('tarifaEle', 'value'),
     Output('tarifaDRA', 'value'),
+    Output('tarifaTRM', 'value'),
     Output('pBooster', 'value'),
     Output('vBP', 'value'),
     
@@ -940,11 +947,8 @@ app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain")
     Output('EstadoID2','style'),
     
     Output("store-data2", "data"),
-    Output('confirmTarifas', 'displayed'),
     
     Input("store-data", "data"),
-    Input('confirmTarifas', 'submit_n_clicks'),
-    Input('confirmTarifas', 'cancel_n_clicks'),
     
     Input('BPCF', 'children'),
     Input('BEP', 'children'),
@@ -985,17 +989,18 @@ app.layout = dbc.Container([Encabezados,Cuerpo,Creditos], class_name="BoxMain")
     Input('pDes', 'value'),
     Input('tarifaEle', 'value'),
     Input('tarifaDRA', 'value'),
+    Input('tarifaTRM', 'value'),
     Input('pBooster', 'value'),
     Input('vBP', 'value'),
     
 )
-def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,AhorroT,BPCV,BEP2,FCMOTOR2, RPM,
+def update_output(Data,BPCF,BEP,FCMOTOR,CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,AhorroT,BPCV,BEP2,FCMOTOR2, RPM,
                   BB,BEP3,FCMOTOR3,BPT,FCMOTOR4,
                   
                   Simular, Optimizar, Limpiar, Actualizar, Detener, Estimar,
                   
                   flujo,viscocidad, api, numUnidades, numEqpVar, numEqpFijo, numEqpPar,
-                  draTot, pRec, pDes, tarifaEle, tarifaDRA, pBooster, vBP
+                  draTot, pRec, pDes, tarifaEle, tarifaDRA, tarifaTRM, pBooster, vBP
                   
                   ):
 
@@ -1012,6 +1017,7 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
     pDesIN=pDes
     tarifaEleIN=tarifaEle
     tarifaDRAIN=tarifaDRA
+    tarifaTRMIN=tarifaTRM
     pBoosterIN=pBooster
     vBPIN=vBP
     EstadoID=""
@@ -1022,7 +1028,6 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
     fig1.data=[]
     fig2.data=[]
     
-    Confirm=False
     
     if "btn-Simular" == ctx.triggered_id:
                 
@@ -1038,7 +1043,7 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
             DRA_ppm=float(draTot)
             Tarifa_Elect=float(tarifaEle)
             Tarifa_DRA=float(tarifaDRA)
-            TRM=trm(date)
+            TRM=float(tarifaTRM)
             print("TRM: "+str(TRM))
             Tarifa_DRA=Tarifa_DRA*TRM
 
@@ -1240,7 +1245,7 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
             
             EFIMOTBPT="{:,.2f} %".format(round(Info_BPT_Mot["Eff_Mot (%)"][0]*100,2))
             EFICONBPT="{:,.2f} %".format(round(Eff_ConjBPT,2)*100)
-            CORRIENTEBPT="{:,.2f} %".format(round(Info_BPT_Mot["Corr (A)"][0],2))
+            CORRIENTEBPT="{:,.2f}".format(round(Info_BPT_Mot["Corr (A)"][0],2))
             EFIINCBPT="{:,.2f}".format(round(Eff_Incr*100,2))
             
             Data2["EfiEquipo BPC Fija"]=EFIEQP
@@ -1319,7 +1324,7 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
 
         Tarifa_Elect=float(tarifaEle)
         Tarifa_DRA=float(tarifaDRA)
-        TRM=trm(date)
+        TRM=float(tarifaTRM)
         print("TRM: "+str(TRM))
         Tarifa_DRA=Tarifa_DRA*TRM
         MOP_psi=1640
@@ -1619,6 +1624,11 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
         Eff_ConjBPCV=Info_BPCV_opt["Eff (%)"][0]*Info_BPCV_Mot_opt["Eff_Mot (%)"][0]*Info_BPCV_Var_opt["Eff_Var(%)"][0]
         Eff_ConjBPT=Info_BPT_opt["Eff (%)"][0]*Info_BPT_Mot_opt["Eff_Mot (%)"][0]*Eff_Incr_opt
 
+        Consumo_BPT_opt=Info_BPT_Mot_opt["PotS (kW)"][0]*NBPT_opt
+        Consumo_BPCF_opt=Info_BPCF_Mot_opt["PotS (kW)"][0]*NBPCF_opt
+        Consumo_BPCV_opt=Info_BPCV_Mot_opt["PotS (kW)"][0]*NBPCV_opt
+        Consumo_BB_opt=Info_BB_Mot_opt["PotS (kW)"][0]*NBB_opt
+
         Flux,TDH,RPM=e2.Covena_Graph(BPC_fija_doc,NBPCF_opt,BPC_var_doc,NBPCV_opt,"BPT.csv",NBPT_opt,real_ps=float(Ps_BP_opt),op="var")
 
         vec_ppm,vec_red,real_red=e2.dra_graph(ppm_opt,m_Cov,b_Cov)
@@ -1720,7 +1730,7 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
         FCMOTOR="{:,.2f} %".format(round(Info_BPCF_Mot_opt["FactorCarga (%)"][0]*100,2))
         #FCMOTOR="Error"
         EFIEQP="{:,.2f} %".format(round(Info_BPCF_opt["Eff (%)"][0]*100,2))
-        CONEQP="{:,.2f}".format(round(Consumo_BPCF,2))
+        CONEQP="{:,.2f}".format(round(Consumo_BPCF_opt,2))
 
         BPCV=NBPCV_opt
         BEP2="{:,.2f} %".format(round(Info_BPCV_opt["%BEP"][0]*100,2))
@@ -1728,7 +1738,7 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
         RPM="{:,.2f}".format(round(Info_BPCV_opt["Vel (RPM)"][0],2))
         #FCMOTOR2="Error"
         EFIEQPVAR="{:,.2f} %".format(round(Info_BPCV_opt["Eff (%)"][0]*100,2))
-        CONEQPVAR="{:,.2f}".format(round(Consumo_BPCV,2))
+        CONEQPVAR="{:,.2f}".format(round(Consumo_BPCV_opt,2))
 
         
         BB=NBB_opt
@@ -1736,13 +1746,13 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
         FCMOTOR3="{:,.2f} %".format(round(Info_BB_Mot_opt["FactorCarga (%)"][0]*100,2))
         #FCMOTOR3="Error"
         EFEQPBB="{:,.2f} %".format(round(Info_BB_opt["Eff (%)"][0]*100,2))
-        CONEQPBB="{:,.2f}".format(round(Consumo_BB,2))
+        CONEQPBB="{:,.2f}".format(round(Consumo_BB_opt,2))
         
         BPT=NBPT_opt
         FCMOTOR4="{:,.2f} %".format(round(Info_BPT_Mot_opt["FactorCarga (%)"][0]*100,2))
         #FCMOTOR4="Error"
         EFEQPBPT="{:,.2f} %".format(round(Info_BPT_opt["Eff (%)"][0]*100,2))
-        CONEQPBPT="{:,.2f}".format(round(Consumo_BPT,2))
+        CONEQPBPT="{:,.2f}".format(round(Consumo_BPT_opt,2))
         
         #EstadoID="Simulación Terminada"
         EstadoID=""
@@ -1764,7 +1774,7 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
         
         EFIMOTBPT="{:,.2f} %".format(round(Info_BPT_Mot_opt["Eff_Mot (%)"][0]*100,2))
         EFICONBPT="{:,.2f} %".format(round(Eff_ConjBPT,2)*100)
-        CORRIENTEBPT="{:,.2f} %".format(round(Info_BPT_Mot_opt["Corr (A)"][0],2))
+        CORRIENTEBPT="{:,.2f}".format(round(Info_BPT_Mot_opt["Corr (A)"][0],2))
         EFIINCBPT="{:,.2f}".format(round(Eff_Incr_opt*100,2))
         
         Data2["EfiEquipo BPC Fija"]=EFIEQP
@@ -1929,11 +1939,10 @@ def update_output(Data,ConfirmSubmit,ConfirmCancel,BPCF,BEP,FCMOTOR,CDRA_B, CE_B
         pDesIN=round(dp_base,2)
 
 
-    
     return [BPCF, BEP, FCMOTOR, CDRA_B, CE_B, CET_B,CDRA_O, CE_O, CET_O,AhorroT,BPCV,BEP2,FCMOTOR2,RPM,BB,BEP3,FCMOTOR3,
                   BPT,FCMOTOR4, Simular, fig1, fig2, flujoIN,viscocidadIN,
                   apiIN, numUnidadesIN, numEqpVarIN, numEqpFijoIN, numEqpParIN,
-                  draTotIN, pRecIN, pDesIN, tarifaEleIN, tarifaDRAIN, pBoosterIN, vBPIN, EstadoID, Est1, Est2, Data2, False]
+                  draTotIN, pRecIN, pDesIN, tarifaEleIN, tarifaDRAIN, tarifaTRMIN, pBoosterIN, vBPIN, EstadoID, Est1, Est2, Data2]
 
 #Ocultar Tarjetas
 @app.callback(
@@ -2011,6 +2020,7 @@ def update_style(Simular, Optimizar, Limpiar):
     
     Output("tarifaEleA", "style"),
     Output("tarifaDRAA", "style"),
+    Output("tarifaTRMA", "style"),
     Output("pBoosterA", "style"),
     Output("vBPA", "style"),
     
@@ -2026,6 +2036,7 @@ def sync_checklists(Opt):
         sty2={"display":"none"}
         sty3={"display":"none"}
         sty4={"display":"none"}
+        sty5={"display":"none"}
         sEnt={"height": "600px"}
         
     else:
@@ -2033,9 +2044,10 @@ def sync_checklists(Opt):
         sty2={"display":"block"}
         sty3={"display":"block"}
         sty4={"display":"block"}
-        sEnt={"height": "815px"}
+        sty5={"display":"block"}
+        sEnt={"height": "880px"}
 
-    return [sty1,sty2,sty3,sty4,sEnt]
+    return [sty1,sty2,sty3,sty4,sty5,sEnt]
 
 #Restricciones
 @app.callback(
@@ -2233,4 +2245,4 @@ def update_output(Data2, value, value2, inp):
         return ["",""]
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(host="192.99.68.249",port="3050")
